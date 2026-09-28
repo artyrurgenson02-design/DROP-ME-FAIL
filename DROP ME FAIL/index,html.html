@@ -1,0 +1,3252 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>oura drop me fail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CRITICAL GLOBAL RESET
+   ============================================================ */
+[hidden] { display: none !important; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+html { overflow: hidden; }
+body { overflow: hidden; }
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;}
+:root{
+  --bg:#f6f7f9;
+  --bg-grad-1:rgba(61,99,240,.09);
+  --bg-grad-2:rgba(120,80,240,.08);
+  --surface:#ffffff;
+  --surface-glass:rgba(255,255,255,.72);
+  --surface-soft:#f1f3f7;
+  --surface-hover:#eceff5;
+  --border:#e6e9ef;
+  --border-strong:#d8dce5;
+  --text:#0e1116;
+  --text-2:#3b4250;
+  --text-muted:#6b7280;
+  --accent:#3d63f0;
+  --accent-hover:#2f52d8;
+  --accent-soft:#ecf0ff;
+  --danger:#e5484d;
+  --danger-hover:#cf3a3f;
+  --danger-soft:#fdecec;
+  --success:#0f9d58;
+  --success-soft:#e7f7ee;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.05);
+  --shadow-md:0 4px 14px rgba(16,24,40,.06),0 2px 4px rgba(16,24,40,.04);
+  --shadow-lg:0 18px 48px rgba(16,24,40,.14),0 4px 12px rgba(16,24,40,.06);
+  --radius:16px;
+  --radius-lg:22px;
+  --sidebar-w:264px;
+  --topbar-h:64px;
+}
+html[data-theme="dark"]{
+  --bg:#0a0d12;
+  --bg-grad-1:rgba(91,124,255,.10);
+  --bg-grad-2:rgba(140,90,255,.08);
+  --surface:#11151c;
+  --surface-glass:rgba(20,25,34,.72);
+  --surface-soft:#181d26;
+  --surface-hover:#1f252f;
+  --border:#212833;
+  --border-strong:#2d3542;
+  --text:#eef1f6;
+  --text-2:#c3cad6;
+  --text-muted:#8d97a6;
+  --accent:#5b7cff;
+  --accent-hover:#7390ff;
+  --accent-soft:#18213c;
+  --danger:#ff6369;
+  --danger-hover:#ff7b80;
+  --danger-soft:#2a171a;
+  --success:#3dd68c;
+  --success-soft:#122a1f;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+  --shadow-md:0 4px 14px rgba(0,0,0,.4);
+  --shadow-lg:0 18px 48px rgba(0,0,0,.55);
+}
+
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+button,input,select,textarea{font:inherit;color:inherit;}
+button{cursor:pointer;background:none;border:none;padding:0;}
+a{color:var(--accent);text-decoration:none;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px;}
+::selection{background:var(--accent);color:#fff;}
+
+*::-webkit-scrollbar{width:10px;height:10px;}
+*::-webkit-scrollbar-track{background:transparent;}
+*::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px;border:3px solid transparent;background-clip:content-box;}
+*::-webkit-scrollbar-thumb:hover{background:var(--text-muted);background-clip:content-box;}
+
+/* ============================================================
+   SHARED UI
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  height:42px;padding:0 18px;border-radius:12px;
+  font-weight:550;font-size:14.5px;letter-spacing:-.01em;
+  border:1px solid transparent;white-space:nowrap;
+  transition:background .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .12s ease,opacity .18s ease;
+}
+.btn:active:not(:disabled){transform:translateY(1px) scale(.995);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn svg{width:18px;height:18px;flex:none;}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(61,99,240,.35),0 6px 18px -8px rgba(61,99,240,.6);}
+.btn-primary:hover:not(:disabled){background:var(--accent-hover);}
+.btn-ghost{background:var(--surface);color:var(--text);border-color:var(--border);box-shadow:var(--shadow-sm);}
+.btn-ghost:hover:not(:disabled){background:var(--surface-soft);border-color:var(--border-strong);}
+.btn-soft{background:var(--surface-soft);color:var(--text);}
+.btn-soft:hover:not(:disabled){background:var(--surface-hover);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover:not(:disabled){background:var(--danger-hover);}
+.btn-danger-soft{background:var(--danger-soft);color:var(--danger);}
+.btn-danger-soft:hover:not(:disabled){filter:brightness(.96);}
+.btn-sm{height:34px;padding:0 13px;font-size:13.5px;border-radius:10px;}
+
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:12px;color:var(--text-2);
+  transition:background .18s,color .18s,transform .12s;
+  position:relative;flex:none;
+}
+.icon-btn svg{width:19px;height:19px;}
+.icon-btn:hover{background:var(--surface-soft);color:var(--text);}
+.icon-btn:active{transform:scale(.94);}
+.icon-btn.sm{width:34px;height:34px;border-radius:10px;}
+.icon-btn.sm svg{width:17px;height:17px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  height:24px;padding:0 10px;border-radius:99px;
+  font-size:12px;font-weight:550;letter-spacing:.01em;
+  background:var(--surface-soft);color:var(--text-muted);
+}
+.chip.accent{background:var(--accent-soft);color:var(--accent);}
+.chip.success{background:var(--success-soft);color:var(--success);}
+
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.field label{font-size:13.5px;font-weight:550;color:var(--text-2);}
+.input{
+  height:46px;padding:0 15px;border-radius:12px;
+  background:var(--surface-soft);border:1px solid var(--border);
+  font-size:14.5px;width:100%;
+  transition:border-color .18s,background .18s,box-shadow .18s;
+}
+.input::placeholder{color:var(--text-muted);}
+.input:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 4px var(--accent-soft);}
+
+/* ============================================================
+   AUTH SCREEN
+   ============================================================ */
+#authScreen{
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 8% -8%, var(--bg-grad-1), transparent 62%),
+    radial-gradient(760px 460px at 104% 4%, var(--bg-grad-2), transparent 60%);
+}
+body.app-mode #authScreen { display: none !important; }
+
+.auth-card{
+  width:100%;max-width:440px;
+  background:var(--surface-glass);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  padding:40px 36px 32px;
+  animation:authIn .5s cubic-bezier(.2,.8,.25,1) both;
+  position: relative;
+  z-index: 1;
+}
+@keyframes authIn{from{opacity:0;transform:translateY(18px) scale(.985);}to{opacity:1;transform:none;}}
+.auth-brand{
+  display:flex;align-items:center;gap:10px;justify-content:center;
+  font-weight:650;font-size:15px;letter-spacing:-.02em;color:var(--text-muted);
+  margin-bottom:26px;
+}
+.auth-brand .logo-mark{
+  width:26px;height:26px;border-radius:9px;flex:none;
+  background:linear-gradient(140deg,var(--accent),#7b5cff);
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 4px 12px -3px rgba(61,99,240,.65);
+}
+.auth-brand .logo-mark svg{width:15px;height:15px;}
+.auth-view h1{
+  font-size:25px;font-weight:650;letter-spacing:-.025em;
+  margin:0 0 10px;text-align:center;
+}
+.auth-view .auth-desc{
+  font-size:14.5px;color:var(--text-muted);text-align:center;
+  margin:0 0 28px;line-height:1.55;
+}
+.oauth-btn{
+  display:flex;align-items:center;gap:12px;
+  width:100%;height:52px;padding:0 18px;
+  border-radius:14px;border:1px solid var(--border);
+  background:var(--surface);font-size:14.5px;font-weight:550;
+  box-shadow:var(--shadow-sm);
+  transition:background .18s,border-color .18s,transform .12s,box-shadow .18s;
+  margin-bottom:12px;text-align:left;
+  position: relative;
+  z-index: 1;
+}
+.oauth-btn:hover{background:var(--surface-soft);border-color:var(--border-strong);box-shadow:var(--shadow-md);}
+.oauth-btn:active{transform:translateY(1px);}
+.oauth-btn .oauth-ic{width:24px;height:24px;flex:none;display:grid;place-items:center;}
+.oauth-btn .arrow{margin-left:auto;color:var(--text-muted);transition:transform .18s;}
+.oauth-btn:hover .arrow{transform:translateX(3px);}
+.auth-switch{
+  text-align:center;margin-top:26px;font-size:14px;color:var(--text-muted);
+}
+.auth-switch button{color:var(--accent);font-weight:550;}
+.auth-switch button:hover{text-decoration:underline;}
+.auth-view{animation:viewIn .32s cubic-bezier(.2,.8,.25,1) both;}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.auth-foot{
+  text-align:center;font-size:12px;color:var(--text-muted);
+  margin-top:24px;opacity:.8;
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#appScreen{
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-areas: "topbar topbar" "sidebar main";
+  overflow: hidden;
+}
+body.auth-mode #appScreen { display: none !important; }
+
+.topbar{
+  grid-area:topbar;
+  display:flex;align-items:center;gap:14px;
+  padding:0 22px;
+  background:var(--surface-glass);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--border);
+  z-index:40;
+}
+.brand{
+  font-size:15.5px;font-weight:650;letter-spacing:-.025em;
+  display:flex;align-items:center;gap:10px;white-space:nowrap;
+}
+.brand .logo-mark{
+  width:24px;height:24px;border-radius:8px;flex:none;
+  background:linear-gradient(140deg,var(--accent),#7b5cff);
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 3px 10px -2px rgba(61,99,240,.7);
+}
+.brand .logo-mark svg{width:14px;height:14px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.burger{display:none;}
+#bellDot{
+  position:absolute;top:8px;right:9px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--danger);border:2px solid var(--surface);
+}
+
+.sidebar{
+  grid-area:sidebar;
+  display:flex;flex-direction:column;
+  padding:18px 14px 18px;
+  border-right:1px solid var(--border);
+  background:var(--surface-glass);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  z-index:50;
+  overflow-y:auto;
+}
+.side-label{
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-muted);padding:0 12px;margin:4px 0 10px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  width:100%;height:44px;padding:0 12px;border-radius:12px;
+  font-size:14.5px;font-weight:520;color:var(--text-2);
+  transition:background .18s,color .18s;
+  margin-bottom:3px;text-align:left;
+}
+.nav-item svg{width:19px;height:19px;flex:none;opacity:.85;}
+.nav-item:hover{background:var(--surface-soft);color:var(--text);}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+.nav-item.active svg{opacity:1;}
+.sidebar-spacer{flex:1;min-height:24px;}
+.side-bottom{
+  border-top:1px solid var(--border);
+  padding-top:14px;display:flex;gap:8px;align-items:center;
+}
+.profile-btn{
+  flex:1;display:flex;align-items:center;gap:11px;
+  height:48px;padding:0 10px;border-radius:14px;
+  transition:background .18s;min-width:0;text-align:left;
+}
+.profile-btn:hover{background:var(--surface-soft);}
+.profile-btn.active{background:var(--accent-soft);}
+.avatar{
+  width:32px;height:32px;border-radius:10px;flex:none;
+  display:grid;place-items:center;overflow:hidden;position:relative;
+  background:linear-gradient(140deg,var(--accent),#7b5cff);
+  color:#fff;font-size:12.5px;font-weight:650;letter-spacing:.02em;
+}
+.avatar img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+.profile-btn .pb-text{min-width:0;}
+.profile-btn .pb-name{font-size:14px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-btn .pb-sub{font-size:12px;color:var(--text-muted);}
+
+.main{
+  grid-area:main;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:36px 40px 64px;
+  scroll-behavior:smooth;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 8% -8%, var(--bg-grad-1), transparent 62%),
+    radial-gradient(760px 460px at 104% 4%, var(--bg-grad-2), transparent 60%);
+  background-attachment: local;
+}
+.page{max-width:1080px;margin:0 auto;animation:pageIn .34s cubic-bezier(.2,.8,.25,1) both;}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.page-head{margin-bottom:28px;}
+.page-head.center{text-align:center;}
+.page-title{font-size:30px;font-weight:650;letter-spacing:-.03em;margin:0 0 8px;}
+.page-sub{font-size:14.5px;color:var(--text-muted);margin:0;}
+.page-head-row{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;}
+.page-head-row .page-head{margin-bottom:0;flex:1;min-width:220px;}
+
+/* ============================================================
+   DROPZONE + UPLOAD
+   ============================================================ */
+.dropzone{
+  position:relative;
+  border:1.5px dashed var(--border-strong);
+  border-radius:var(--radius-lg);
+  background:var(--surface);
+  padding:52px 28px;
+  text-align:center;
+  transition:border-color .2s,background .2s,transform .2s,box-shadow .2s;
+  box-shadow:var(--shadow-sm);
+}
+.dropzone:hover{border-color:var(--accent);}
+.dropzone.dragover{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+  transform:scale(1.006);
+  box-shadow:0 0 0 5px var(--accent-soft);
+}
+.dz-icon{
+  width:64px;height:64px;border-radius:20px;margin:0 auto 20px;
+  display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent);
+  transition:transform .25s cubic-bezier(.2,.8,.25,1);
+}
+.dropzone.dragover .dz-icon{transform:translateY(-4px) scale(1.06);}
+.dz-icon svg{width:28px;height:28px;}
+.dz-title{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px;}
+.dz-sub{font-size:14px;color:var(--text-muted);margin-bottom:22px;}
+
+.file-card{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;margin-top:18px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  animation:slideUp .3s cubic-bezier(.2,.8,.25,1) both;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.file-ic{
+  width:42px;height:42px;border-radius:12px;flex:none;
+  display:grid;place-items:center;
+  background:var(--surface-soft);color:var(--text-2);
+}
+.file-ic svg{width:20px;height:20px;}
+.file-ic.pdf{background:#fdecec;color:#d93b3f;}
+.file-ic.img{background:#e9f4ff;color:#2b7fe0;}
+.file-ic.zip{background:#fff3e0;color:#d97706;}
+.file-ic.vid{background:#f2ecff;color:#7b5cff;}
+html[data-theme="dark"] .file-ic.pdf{background:#2a1719;color:#ff7b80;}
+html[data-theme="dark"] .file-ic.img{background:#12203a;color:#6aa8f5;}
+html[data-theme="dark"] .file-ic.zip{background:#2a2113;color:#f0b25a;}
+html[data-theme="dark"] .file-ic.vid{background:#211a3a;color:#a68bff;}
+.file-meta{flex:1;min-width:0;}
+.file-name{font-size:14.5px;font-weight:560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-sub{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+.progress-card{
+  margin-top:20px;padding:22px 24px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow-sm);
+}
+.progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;}
+.progress-title{font-size:15px;font-weight:600;letter-spacing:-.01em;}
+.progress-pct{font-size:15px;font-weight:650;color:var(--accent);font-variant-numeric:tabular-nums;}
+.progress-track{height:9px;border-radius:99px;background:var(--surface-soft);overflow:hidden;position:relative;}
+.progress-fill{
+  height:100%;width:0%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),#7b5cff);
+  transition:width .28s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.progress-fill::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+  animation:shimmer 1.6s linear infinite;
+}
+.progress-fill.done::after{display:none;}
+.progress-fill.done{background:linear-gradient(90deg,var(--success),#28c07a);}
+@keyframes shimmer{from{transform:translateX(-100%);}to{transform:translateX(100%);}}
+.progress-meta{
+  display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:16px;
+  font-size:13.5px;color:var(--text-muted);font-variant-numeric:tabular-nums;
+}
+.progress-meta b{color:var(--text-2);font-weight:550;}
+.upload-done{
+  display:flex;align-items:center;gap:10px;margin-top:16px;
+  color:var(--success);font-size:14px;font-weight:550;
+  animation:slideUp .3s cubic-bezier(.2,.8,.25,1) both;
+}
+.upload-done svg{width:18px;height:18px;}
+
+/* ============================================================
+   LISTS / ROWS
+   ============================================================ */
+.list{display:flex;flex-direction:column;gap:10px;}
+.row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  transition:transform .18s cubic-bezier(.2,.8,.25,1),box-shadow .18s,border-color .18s;
+  animation:slideUp .3s cubic-bezier(.2,.8,.25,1) both;
+}
+.row:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:var(--border-strong);}
+.row-body{flex:1;min-width:0;}
+.row-title{font-size:14.5px;font-weight:560;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-sub{font-size:13px;color:var(--text-muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
+.row-actions{display:flex;align-items:center;gap:6px;flex:none;}
+
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.project-card{
+  position:relative;padding:22px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);
+  cursor:pointer;
+  transition:transform .2s cubic-bezier(.2,.8,.25,1),box-shadow .2s,border-color .2s;
+  animation:slideUp .3s cubic-bezier(.2,.8,.25,1) both;
+  text-align:left;width:100%;
+}
+.project-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--border-strong);}
+.pc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+.pc-folder{
+  width:46px;height:46px;border-radius:14px;flex:none;
+  display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent);
+}
+.pc-folder svg{width:22px;height:22px;}
+.pc-name{font-size:15.5px;font-weight:600;letter-spacing:-.015em;margin:2px 0 4px;word-break:break-word;}
+.pc-date{font-size:12.5px;color:var(--text-muted);}
+.pc-more{position:absolute;top:16px;right:16px;}
+.pc-stats{display:flex;flex-wrap:wrap;gap:8px;padding-top:16px;border-top:1px solid var(--border);}
+.pc-stat{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-muted);}
+.pc-stat svg{width:14px;height:14px;opacity:.75;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:26px;}
+.stat-card{
+  padding:20px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  transition:transform .18s,box-shadow .18s;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.stat-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);margin-bottom:14px;}
+.stat-ic svg{width:18px;height:18px;}
+.stat-value{font-size:22px;font-weight:650;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.stat-label{font-size:13px;color:var(--text-muted);margin-top:4px;}
+
+/* ============================================================
+   PROJECT MEMBERS BLOCK
+   ============================================================ */
+.members-block{
+  margin-top:26px;
+  padding:22px 24px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+}
+.members-head{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.members-title{
+  font-size:17px;font-weight:620;letter-spacing:-.02em;margin:0;
+}
+.members-head .btn{margin-left:auto;}
+.members-list{
+  display:flex;flex-direction:column;gap:10px;
+  max-height:420px;
+  overflow-y:auto;
+  padding-right:4px;
+}
+.member-row{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--surface-soft);
+  animation:slideUp .28s cubic-bezier(.2,.8,.25,1) both;
+  transition:border-color .18s,background .18s;
+}
+.member-row:hover{border-color:var(--border-strong);background:var(--surface);}
+.member-avatar{
+  width:40px;height:40px;border-radius:12px;flex:none;
+  background:linear-gradient(140deg,var(--accent),#7b5cff);
+  color:#fff;font-weight:650;font-size:14px;letter-spacing:.02em;
+  display:grid;place-items:center;overflow:hidden;
+}
+.member-body{flex:1;min-width:0;}
+.member-name{
+  font-size:14.5px;font-weight:560;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.member-sub{
+  font-size:12.5px;color:var(--text-muted);
+  margin-top:4px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;
+  font-variant-numeric:tabular-nums;
+}
+.member-id{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.member-role{
+  display:inline-flex;align-items:center;gap:5px;
+  height:22px;padding:0 10px;border-radius:99px;
+  font-size:11.5px;font-weight:600;letter-spacing:.01em;
+  white-space:nowrap;
+}
+.member-role.editor{background:var(--accent-soft);color:var(--accent);}
+.member-role.viewer{background:var(--surface-hover);color:var(--text-muted);}
+html[data-theme="dark"] .member-role.viewer{background:var(--border-strong);color:var(--text-2);}
+
+.members-empty{
+  text-align:center;padding:36px 20px;
+  color:var(--text-muted);font-size:14px;
+}
+.members-empty .empty-ic{margin:0 auto 14px;}
+.members-empty .empty-title{color:var(--text);}
+
+/* Role selector in modal */
+.role-options{display:flex;flex-direction:column;gap:10px;margin-top:2px;}
+.role-option{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:14px 16px;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  background:var(--surface-soft);
+  cursor:pointer;text-align:left;width:100%;
+  transition:border-color .18s,background .18s;
+  font:inherit;color:inherit;
+}
+.role-option:hover{border-color:var(--border-strong);background:var(--surface);}
+.role-option.active{border-color:var(--accent);background:var(--accent-soft);}
+.role-option .role-radio{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--border-strong);
+  flex:none;margin-top:3px;position:relative;
+  transition:border-color .18s,background .18s;
+}
+.role-option.active .role-radio{border-color:var(--accent);}
+.role-option.active .role-radio::after{
+  content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent);
+}
+.role-option-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
+.role-option-title{font-size:14.5px;font-weight:600;letter-spacing:-.01em;}
+.role-option-desc{font-size:12.5px;color:var(--text-muted);line-height:1.45;}
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:8px;}
+
+.profile-cover{
+  position:relative;
+  height:120px;
+  background:linear-gradient(120deg,var(--accent) 0%,#7b5cff 55%,#4dd0c1 130%);
+  opacity:.92;
+  cursor:pointer;
+  overflow:hidden;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  transition:opacity .18s;
+  outline:none;
+}
+.profile-cover:hover{opacity:1;}
+.profile-cover:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;}
+.profile-cover.has-image{opacity:1;}
+.profile-cover-overlay{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  background:rgba(12,16,24,.45);
+  color:#fff;
+  opacity:0;
+  transition:opacity .18s;
+  pointer-events:none;
+  font-size:13.5px;font-weight:550;letter-spacing:-.01em;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+.profile-cover:hover .profile-cover-overlay,
+.profile-cover:focus-visible .profile-cover-overlay{opacity:1;}
+
+.profile-body{padding:0 28px 28px;margin-top:-38px;}
+
+.profile-user-row{
+  display:flex;
+  align-items:flex-end;
+  gap:14px;
+  flex-wrap:nowrap;
+}
+
+.profile-avatar{
+  position:relative;
+  width:88px;height:88px;border-radius:26px;
+  flex:none;
+  background:linear-gradient(140deg,var(--accent),#7b5cff);
+  display:grid;place-items:center;color:#fff;
+  font-size:29px;font-weight:650;letter-spacing:-.02em;
+  border:4px solid var(--surface);
+  box-shadow:var(--shadow-md);
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform .18s,box-shadow .18s;
+  outline:none;
+}
+.profile-avatar:hover{transform:scale(1.02);box-shadow:var(--shadow-lg);}
+.profile-avatar:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.profile-avatar-img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+  pointer-events:none;
+}
+.profile-avatar-initials{position:relative;z-index:1;pointer-events:none;}
+.profile-avatar-overlay{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  background:rgba(12,16,24,.5);
+  color:#fff;
+  opacity:0;
+  transition:opacity .18s;
+  pointer-events:none;
+  z-index:2;
+}
+.profile-avatar-overlay svg{width:26px;height:26px;}
+.profile-avatar:hover .profile-avatar-overlay,
+.profile-avatar:focus-visible .profile-avatar-overlay{opacity:1;}
+
+.profile-user-info{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-end;
+  min-width:0;
+  flex:1 1 auto;
+}
+.profile-user-name{
+  font-size:24px;
+  font-weight:650;
+  letter-spacing:-.03em;
+  line-height:1.15;
+  text-transform:lowercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.profile-user-id{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:13.5px;
+  color:var(--text-muted);
+  font-variant-numeric:tabular-nums;
+  margin-top:2px;
+}
+.copy-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;font-weight:550;color:var(--accent);
+  padding:3px 9px;border-radius:8px;background:var(--accent-soft);
+  transition:filter .18s;
+}
+.copy-btn:hover{filter:brightness(.95);}
+
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:8px 24px;margin-bottom:18px;}
+.setting-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:20px 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.setting-info{flex:1;min-width:180px;}
+.setting-title{font-size:14.5px;font-weight:560;}
+.setting-desc{font-size:13px;color:var(--text-muted);margin-top:3px;}
+.segmented{
+  display:inline-flex;padding:4px;gap:3px;
+  background:var(--surface-soft);border-radius:13px;
+  border:1px solid var(--border);
+}
+.segmented button{
+  height:34px;padding:0 15px;border-radius:10px;
+  font-size:13.5px;font-weight:540;color:var(--text-muted);
+  transition:background .18s,color .18s,box-shadow .18s;
+  white-space:nowrap;
+}
+.segmented button:hover{color:var(--text);}
+.segmented button.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-sm);font-weight:600;}
+html[data-theme="dark"] .segmented button.active{background:var(--border-strong);}
+
+.empty{
+  text-align:center;padding:64px 24px;
+  background:var(--surface);border:1px dashed var(--border-strong);
+  border-radius:var(--radius-lg);
+  animation:pageIn .3s ease both;
+}
+.empty-ic{width:60px;height:60px;border-radius:19px;margin:0 auto 18px;display:grid;place-items:center;background:var(--surface-soft);color:var(--text-muted);}
+.empty-ic svg{width:26px;height:26px;}
+.empty-title{font-size:16px;font-weight:600;letter-spacing:-.015em;margin-bottom:6px;}
+.empty-sub{font-size:14px;color:var(--text-muted);margin-bottom:22px;}
+
+.notif-panel{
+  position:absolute;top:calc(100% + 10px);right:0;
+  width:380px;max-width:calc(100vw - 32px);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  z-index:80;overflow:hidden;
+  animation:popIn .2s cubic-bezier(.2,.8,.25,1) both;
+  transform-origin:top right;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(-6px);}to{opacity:1;transform:none;}}
+.notif-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);}
+.notif-head h3{font-size:15.5px;font-weight:620;letter-spacing:-.02em;margin:0;flex:1;}
+.notif-actions{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);}
+.notif-list{max-height:400px;overflow-y:auto;}
+.notif-item{
+  display:flex;gap:12px;padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  transition:background .18s;position:relative;text-align:left;width:100%;
+}
+.notif-item:last-child{border-bottom:none;}
+.notif-item:hover{background:var(--surface-soft);}
+.notif-ic{width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);}
+.notif-ic svg{width:16px;height:16px;}
+.notif-body{flex:1;min-width:0;}
+.notif-text{font-size:13.5px;font-weight:500;line-height:1.4;}
+.notif-time{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.notif-item.unread .notif-text{font-weight:600;}
+.notif-item.unread::before{content:"";position:absolute;left:6px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent);}
+
+.popover{
+  position:fixed;z-index:120;min-width:196px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow-lg);
+  padding:6px;overflow:hidden;
+  animation:popIn .16s cubic-bezier(.2,.8,.25,1) both;
+}
+.popover-item{
+  display:flex;align-items:center;gap:11px;
+  width:100%;height:40px;padding:0 12px;border-radius:10px;
+  font-size:14px;font-weight:500;color:var(--text-2);
+  transition:background .15s,color .15s;text-align:left;
+}
+.popover-item svg{width:17px;height:17px;opacity:.8;flex:none;}
+.popover-item:hover{background:var(--surface-soft);color:var(--text);}
+.popover-item.danger{color:var(--danger);}
+.popover-item.danger:hover{background:var(--danger-soft);}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  background:rgba(12,16,24,.42);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  animation:fadeIn .2s ease both;
+}
+html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{
+  width:100%;max-width:480px;max-height:calc(100vh - 48px);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:modalIn .26s cubic-bezier(.2,.9,.3,1) both;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.97);}to{opacity:1;transform:none;}}
+.modal.sm{max-width:400px;}
+.modal.lg{max-width:620px;}
+.modal-head{display:flex;align-items:flex-start;gap:16px;padding:22px 22px 16px;}
+.modal-title{font-size:18px;font-weight:640;letter-spacing:-.025em;margin:0;line-height:1.35;}
+.modal-sub{font-size:14px;color:var(--text-muted);margin:8px 0 0;line-height:1.5;}
+.modal-head .icon-btn{margin:-4px -6px 0 auto;}
+.modal-body{padding:0 22px 8px;overflow-y:auto;flex:1;}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding:20px 22px 22px;}
+.modal-icon-warn{
+  width:46px;height:46px;border-radius:15px;flex:none;
+  display:grid;place-items:center;
+  background:var(--danger-soft);color:var(--danger);
+}
+.modal-icon-warn svg{width:22px;height:22px;}
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+#toastRoot{
+  position:fixed;right:22px;bottom:22px;z-index:3000;
+  display:flex;flex-direction:column;gap:10px;align-items:flex-end;
+  pointer-events:none;
+  max-width: calc(100vw - 32px);
+}
+.toast{
+  display:flex;align-items:center;gap:12px;
+  min-width:260px;max-width:380px;
+  padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:15px;
+  box-shadow:var(--shadow-lg);
+  font-size:14px;font-weight:500;
+  pointer-events:auto;
+  animation:toastIn .3s cubic-bezier(.2,.9,.3,1) both;
+}
+.toast.out{animation:toastOut .25s ease forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px) scale(.96);}to{opacity:1;transform:none;}}
+@keyframes toastOut{to{opacity:0;transform:translateX(24px) scale(.96);}}
+.toast-ic{width:30px;height:30px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);}
+.toast-ic svg{width:16px;height:16px;}
+.toast.success .toast-ic{background:var(--success-soft);color:var(--success);}
+.toast.error .toast-ic{background:var(--danger-soft);color:var(--danger);}
+
+.section-title{font-size:17px;font-weight:620;letter-spacing:-.02em;margin:36px 0 16px;}
+.back-link{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13.5px;font-weight:550;color:var(--text-muted);
+  margin-bottom:18px;transition:color .18s,gap .18s;
+}
+.back-link:hover{color:var(--accent);gap:10px;}
+.back-link svg{width:16px;height:16px;}
+.sidebar-scrim{
+  position:fixed;inset:0;z-index:45;
+  background:rgba(10,14,22,.45);
+  backdrop-filter:blur(3px);
+  animation:fadeIn .2s ease both;
+  pointer-events: auto;
+}
+.divider{height:1px;background:var(--border);margin:22px 0;}
+.muted{color:var(--text-muted);}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1080px){ .main{padding:30px 26px 56px;} }
+@media (max-width:900px){
+  #appScreen{
+    grid-template-columns:1fr;
+    grid-template-areas:"topbar" "main";
+  }
+  .burger{display:inline-flex;}
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;
+    width:284px;
+    transform:translateX(-102%);
+    transition:transform .28s cubic-bezier(.2,.8,.25,1);
+    box-shadow:var(--shadow-lg);
+    background:var(--surface);
+    border-right:1px solid var(--border);
+  }
+  .sidebar.open{transform:none;}
+  .topbar{padding:0 14px;gap:8px;}
+  .brand{font-size:14.5px;}
+}
+@media (max-width:640px){
+  .main{padding:22px 16px 48px;}
+  .page-title{font-size:24px;}
+  .auth-card{padding:30px 22px 24px;}
+  .dropzone{padding:36px 18px;}
+  .dz-icon{width:54px;height:54px;border-radius:17px;}
+  .dz-title{font-size:16px;}
+  .stats-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+  .projects-grid{grid-template-columns:1fr;}
+  .setting-row{flex-direction:column;align-items:flex-start;gap:12px;}
+  .segmented{width:100%;}
+  .segmented button{flex:1;}
+  #toastRoot{right:14px;left:14px;bottom:14px;align-items:stretch;}
+  .toast{min-width:0;max-width:none;width:100%;}
+  .modal-foot{flex-direction:column-reverse;}
+  .modal-foot .btn{width:100%;}
+  .notif-panel{position:fixed;top:70px;right:12px;left:12px;width:auto;}
+  .row{flex-wrap:wrap;}
+  .row-actions{width:100%;justify-content:flex-end;}
+
+  .profile-body{padding:0 20px 22px;}
+  .profile-user-row{gap:10px; align-items:flex-end;}
+  .profile-avatar{
+    width:68px;height:68px;
+    border-radius:20px;
+    font-size:22px;
+    border-width:3px;
+  }
+  .profile-avatar-overlay svg{width:20px;height:20px;}
+  .profile-user-name{
+    font-size:18px;
+    white-space:normal;
+  }
+  .profile-user-id{font-size:12.5px;}
+
+  .members-block{padding:18px 16px;}
+  .members-head{gap:10px;}
+  .members-head .btn{margin-left:0;width:100%;}
+  .member-row{padding:11px 12px;}
+  .member-avatar{width:36px;height:36px;border-radius:11px;font-size:13px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
+}
+</style>
+</head>
+<body class="auth-mode">
+
+<!-- ======================= AUTH SCREEN ======================= -->
+<div id="authScreen" role="main">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      </span>
+      <span>oura drop me fail</span>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-view" id="viewRegister">
+      <h1 data-i18n="auth.register.title">Создание аккаунта</h1>
+      <p class="auth-desc" data-i18n="auth.register.desc">Создайте аккаунт в oura drop me fail, чтобы загружать, хранить и передавать файлы.</p>
+
+      <button class="oauth-btn" type="button" data-oauth="yandex" data-oauth-mode="register">
+        <span class="oauth-ic">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#FC3F1D"/><path d="M13.4 6.6h-1.9c-1.7 0-2.7 1-2.7 2.5 0 1.6.8 2.5 2.3 3.5l-2.3 4.8h1.9l2.4-5.2-1-.7c-1.1-.7-1.5-1.3-1.5-2.3 0-.9.5-1.4 1.4-1.4h1.4V6.6Z" fill="#fff"/></svg>
+        </span>
+        <span data-i18n="auth.register.yandex">Зарегистрироваться через Яндекс</span>
+        <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      </button>
+
+      <button class="oauth-btn" type="button" data-oauth="google" data-oauth-mode="register">
+        <span class="oauth-ic">
+          <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" fill="#34A853"/><path d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EA4335"/></svg>
+        </span>
+        <span data-i18n="auth.register.google">Зарегистрироваться через Google</span>
+        <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      </button>
+
+      <div class="auth-switch">
+        <span data-i18n="auth.toLogin">Уже есть аккаунт?</span>
+        <button type="button" id="goLogin" data-i18n="auth.toLoginBtn">Войти</button>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="auth-view" id="viewLogin" hidden>
+      <h1 data-i18n="auth.login.title">Вход в аккаунт</h1>
+      <p class="auth-desc" data-i18n="auth.login.desc">Войдите в oura drop me fail, чтобы продолжить работу с файлами и проектами.</p>
+
+      <button class="oauth-btn" type="button" data-oauth="yandex" data-oauth-mode="login">
+        <span class="oauth-ic">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#FC3F1D"/><path d="M13.4 6.6h-1.9c-1.7 0-2.7 1-2.7 2.5 0 1.6.8 2.5 2.3 3.5l-2.3 4.8h1.9l2.4-5.2-1-.7c-1.1-.7-1.5-1.3-1.5-2.3 0-.9.5-1.4 1.4-1.4h1.4V6.6Z" fill="#fff"/></svg>
+        </span>
+        <span data-i18n="auth.login.yandex">Авторизироваться через Яндекс</span>
+        <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      </button>
+
+      <button class="oauth-btn" type="button" data-oauth="google" data-oauth-mode="login">
+        <span class="oauth-ic">
+          <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" fill="#34A853"/><path d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EA4335"/></svg>
+        </span>
+        <span data-i18n="auth.login.google">Авторизироваться через Google</span>
+        <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      </button>
+
+      <div class="auth-switch">
+        <span data-i18n="auth.toRegister">Нет аккаунта?</span>
+        <button type="button" id="goRegister" data-i18n="auth.toRegisterBtn">Зарегистрироваться</button>
+      </div>
+    </div>
+
+    <div class="auth-foot" data-i18n="auth.foot">Frontend-прототип · Демонстрационная авторизация</div>
+  </div>
+</div>
+
+<!-- ======================= APP ======================= -->
+<div id="appScreen" hidden>
+  <header class="topbar">
+    <button class="icon-btn burger" id="burgerBtn" aria-label="Меню">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="brand">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      </span>
+      <span>oura drop me fail</span>
+    </div>
+    <div class="topbar-right" style="position:relative">
+      <button class="icon-btn" id="bellBtn" aria-label="Уведомления" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="bellDot" hidden></span>
+      </button>
+      <div class="notif-panel" id="notifPanel" hidden role="dialog" aria-label="Уведомления"></div>
+    </div>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="side-label" data-i18n="nav.section">Хранилище</div>
+    <button class="nav-item" type="button" data-page="upload">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>
+      <span data-i18n="nav.upload">Загрузить</span>
+    </button>
+    <button class="nav-item" type="button" data-page="files">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span data-i18n="nav.files">Мои загрузки</span>
+    </button>
+    <button class="nav-item" type="button" data-page="projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+      <span data-i18n="nav.projects">Мои проекты</span>
+    </button>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="side-bottom">
+      <button class="profile-btn" type="button" data-page="profile" id="profileBtn">
+        <span class="avatar" id="sideAvatar">АИ</span>
+        <span class="pb-text">
+          <span class="pb-name" id="sideName">Александр Иванов</span>
+          <span class="pb-sub" data-i18n="nav.profile">Профиль</span>
+        </span>
+      </button>
+      <button class="icon-btn" type="button" data-page="settings" id="settingsBtn" aria-label="Настройки" title="Настройки">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-scrim" id="sidebarScrim" hidden></div>
+
+  <main class="main" id="mainArea" tabindex="-1"></main>
+</div>
+
+<!-- ======================= MODAL ======================= -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
+</div>
+
+<!-- ======================= HIDDEN FILE INPUTS ======================= -->
+<input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" hidden>
+<input type="file" id="coverFileInput"  accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" hidden>
+
+<!-- ======================= TOASTS ======================= -->
+<div id="toastRoot" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. ICONS
+   ============================================================ */
+const SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">';
+const ICONS = {
+  upload:   SVG_OPEN + '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
+  download: SVG_OPEN + '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>',
+  folder:   SVG_OPEN + '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>',
+  file:     SVG_OPEN + '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  image:    SVG_OPEN + '<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-4.5-4.5L5 21"/></svg>',
+  video:    SVG_OPEN + '<path d="m23 7-7 5 7 5V7Z"/><rect x="1" y="5" width="15" height="14" rx="2.5"/></svg>',
+  archive:  SVG_OPEN + '<rect x="2.5" y="3" width="19" height="5" rx="1.4"/><path d="M4.5 8v10a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>',
+  settings: SVG_OPEN + '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  user:     SVG_OPEN + '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  users:    SVG_OPEN + '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  bell:     SVG_OPEN + '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+  trash:    SVG_OPEN + '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  edit:     SVG_OPEN + '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>',
+  share:    SVG_OPEN + '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg>',
+  more:     '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>',
+  check:    SVG_OPEN + '<path d="M20 6 9 17l-5-5"/></svg>',
+  x:        SVG_OPEN + '<path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  plus:     SVG_OPEN + '<path d="M12 5v14"/><path d="M5 12h14"/></svg>',
+  clock:    SVG_OPEN + '<circle cx="12" cy="12" r="9.2"/><path d="M12 7v5.2l3.4 2"/></svg>',
+  drive:    SVG_OPEN + '<path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z"/><path d="M6 16h.01"/><path d="M10 16h.01"/></svg>',
+  layers:   SVG_OPEN + '<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>',
+  arrowLeft:SVG_OPEN + '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>',
+  copy:     SVG_OPEN + '<rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  info:     SVG_OPEN + '<circle cx="12" cy="12" r="9.2"/><path d="M12 16v-4.5"/><path d="M12 8h.01"/></svg>',
+  alert:    SVG_OPEN + '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+  logout:   SVG_OPEN + '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>',
+  camera:   SVG_OPEN + '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+};
+function ic(name){ return ICONS[name] || ICONS.file; }
+
+/* ============================================================
+   2. DEMO USER DIRECTORY
+   Имитация серверного реестра пользователей для проверки ID
+   при добавлении участника. НЕ является данными аккаунта.
+   ============================================================ */
+const KNOWN_USERS = {
+  "123456789": { name:"Александр Иванов", initials:"АИ" },
+  "987654321": { name:"Иван Петров",     initials:"ИП" },
+  "555666777": { name:"Мария Смирнова",  initials:"МС" },
+  "111222333": { name:"Пётр Сидоров",    initials:"ПС" },
+  "444555666": { name:"Елена Кузнецова", initials:"ЕК" },
+  "222333444": { name:"Дмитрий Орлов",   initials:"ДО" },
+  "666777888": { name:"Ольга Белова",    initials:"ОБ" },
+  "999888777": { name:"Николай Волков",  initials:"НВ" }
+};
+
+/* ============================================================
+   3. I18N
+   ============================================================ */
+const I18N = {
+  ru: {
+    "nav.section":"Хранилище",
+    "nav.upload":"Загрузить",
+    "nav.files":"Мои загрузки",
+    "nav.projects":"Мои проекты",
+    "nav.profile":"Профиль",
+    "nav.settings":"Настройки",
+
+    "auth.register.title":"Создание аккаунта",
+    "auth.register.desc":"Создайте аккаунт в oura drop me fail, чтобы загружать, хранить и передавать файлы.",
+    "auth.register.yandex":"Зарегистрироваться через Яндекс",
+    "auth.register.google":"Зарегистрироваться через Google",
+    "auth.login.title":"Вход в аккаунт",
+    "auth.login.desc":"Войдите в oura drop me fail, чтобы продолжить работу с файлами и проектами.",
+    "auth.login.yandex":"Авторизироваться через Яндекс",
+    "auth.login.google":"Авторизироваться через Google",
+    "auth.toLogin":"Уже есть аккаунт?",
+    "auth.toLoginBtn":"Войти",
+    "auth.toRegister":"Нет аккаунта?",
+    "auth.toRegisterBtn":"Зарегистрироваться",
+    "auth.foot":"Frontend-прототип · Демонстрационная авторизация",
+
+    "toast.yandexRegister":"Демонстрационная регистрация через Яндекс",
+    "toast.googleRegister":"Демонстрационная регистрация через Google",
+    "toast.yandexLogin":"Демонстрационная авторизация через Яндекс",
+    "toast.googleLogin":"Демонстрационная авторизация через Google",
+    "toast.saved":"Изменения сохранены",
+    "toast.deleted":"Файл удалён",
+    "toast.projectCreated":"Проект создан",
+    "toast.projectDeleted":"Проект удалён",
+    "toast.uploaded":"Файл успешно загружен",
+    "toast.accessGranted":"Доступ выдан",
+    "toast.downloadStart":"Скачивание файла началось",
+    "toast.rename":"Название файла обновлено",
+    "toast.allRead":"Все уведомления прочитаны",
+    "toast.allCleared":"Уведомления очищены",
+    "toast.loggedOut":"Вы вышли из аккаунта",
+    "toast.copied":"ID скопирован",
+    "toast.uploadInProgress":"Дождитесь завершения текущей загрузки",
+
+    "upload.title":"Загрузить",
+    "upload.dropTitle":"Перетащите файл сюда",
+    "upload.dropSub":"или выберите файл на устройстве",
+    "upload.choose":"Выбрать файл",
+    "upload.progressTitle":"Загрузка файла",
+    "upload.loaded":"Загружено",
+    "upload.remaining":"Осталось времени",
+    "upload.speed":"Скорость",
+    "upload.complete":"Файл успешно загружен",
+    "upload.remove":"Удалить из очереди",
+
+    "files.title":"Мои загрузки",
+    "files.sub":"Все файлы, которые вы загрузили в oura drop me fail.",
+    "files.download":"Скачать файл",
+    "files.empty":"У вас пока нет загруженных файлов",
+    "files.emptySub":"Загрузите свой первый файл, чтобы он появился здесь.",
+    "files.emptyBtn":"Загрузить файл",
+
+    "projects.title":"Мои проекты",
+    "projects.sub":"Проекты объединяют файлы и участников в одном пространстве.",
+    "projects.create":"Создать проект",
+    "projects.empty":"У вас пока нет проектов",
+    "projects.emptySub":"Создайте свой первый проект, чтобы начать работу с файлами и участниками.",
+    "projects.emptyBtn":"Создать проект",
+    "projects.files":"файлов",
+    "projects.members":"участников",
+    "projects.created":"Создан",
+
+    "project.back":"К списку проектов",
+    "project.filesTitle":"Файлы проекта",
+    "project.uploadComplete":"Файл успешно добавлен в проект",
+    "project.statFiles":"Файлов в проекте",
+    "project.statSize":"Вес файлов",
+    "project.statMembers":"Участников",
+    "project.statModified":"Последнее изменение",
+    "project.noFiles":"В проекте пока нет файлов",
+    "project.noFilesSub":"Загрузите первый файл в этот проект.",
+    "project.noFilesBtn":"Загрузить файл",
+    "project.uploadedBy":"Загрузил",
+
+    "project.membersTitle":"Участники проекта",
+    "project.addMember":"Добавить участника",
+    "project.addMemberTitle":"Добавить участника",
+    "project.memberIdLabel":"ID пользователя",
+    "project.memberIdPlaceholder":"Введите ID пользователя",
+    "project.memberRoleLabel":"Роль пользователя",
+    "project.roleEditorDesc":"Может работать с содержимым проекта",
+    "project.roleViewerDesc":"Может просматривать содержимое проекта",
+    "project.addMemberBtn":"Добавить участника",
+    "project.notAddMember":"Не добавлять",
+    "project.memberAdded":"Участник успешно добавлен в проект",
+    "project.errEnterId":"Введите ID пользователя",
+    "project.errInvalidId":"Введите корректный ID пользователя",
+    "project.errDuplicate":"Этот пользователь уже является участником проекта",
+    "project.errNotFound":"Пользователь с таким ID не найден",
+    "project.membersEmpty":"В проекте пока нет участников",
+    "project.membersEmptySub":"Добавьте пользователя по его ID.",
+    "project.roleEditor":"Редактор",
+    "project.roleViewer":"Наблюдатель",
+    "project.memberRole":"Роль",
+
+    "profile.title":"Профиль",
+    "profile.id":"ID",
+    "profile.copyId":"Копировать",
+    "profile.statFiles":"Загружено файлов",
+    "profile.statProjects":"Создано проектов",
+    "profile.statFree":"Осталось места",
+    "profile.statTotal":"Вес всех файлов",
+    "profile.changeAvatar":"Изменить аватарку",
+    "profile.removeAvatar":"Удалить аватарку",
+    "profile.changeCover":"Изменить шапку",
+    "profile.removeCover":"Удалить шапку",
+    "profile.coverHint":"Изменить шапку",
+    "profile.confirmRemoveAvatar":"Вы точно хотите удалить аватарку?",
+    "profile.confirmRemoveCover":"Вы точно хотите удалить шапку?",
+    "profile.yesRemove":"Да, удалить",
+    "profile.no":"Нет",
+    "profile.avatarUpdated":"Аватарка обновлена",
+    "profile.avatarRemoved":"Аватарка удалена",
+    "profile.coverUpdated":"Шапка обновлена",
+    "profile.coverRemoved":"Шапка удалена",
+    "profile.invalidImage":"Пожалуйста, выберите изображение.",
+    "profile.imageTooLarge":"Изображение слишком большое. Максимальный размер — 5 МБ.",
+    "profile.uploadFailed":"Не удалось загрузить изображение.",
+
+    "settings.title":"Настройки",
+    "settings.sub":"Управляйте внешним видом и языком интерфейса.",
+    "settings.theme":"Тема",
+    "settings.themeDesc":"Выберите оформление интерфейса.",
+    "settings.themeLight":"Светлая",
+    "settings.themeDark":"Тёмная",
+    "settings.themeSystem":"Системная",
+    "settings.lang":"Язык",
+    "settings.langDesc":"Выберите язык интерфейса.",
+    "settings.logout":"Выйти из аккаунта",
+    "settings.logoutDesc":"Вы вернётесь на экран входа.",
+    "settings.logoutBtn":"Выйти",
+    "settings.save":"Сохранить",
+    "settings.discard":"Не сохранять",
+
+    "notif.title":"Уведомления",
+    "notif.readAll":"Прочитать все уведомления",
+    "notif.clearAll":"Удалить все уведомления",
+    "notif.empty":"У вас пока нет уведомлений",
+
+    "common.delete":"Удалить",
+    "common.edit":"Редактировать",
+    "common.share":"Выдать доступ",
+    "common.cancel":"Отмена",
+    "common.close":"Закрыть",
+    "common.save":"Сохранить",
+    "common.dontSave":"Не сохранять",
+
+    "modal.deleteFileTitle":"Вы точно хотите удалить этот файл?",
+    "modal.deleteFileDesc":"После удаления файл больше не будет отображаться в ваших загрузках.",
+    "modal.deleteFileYes":"Да, удалить",
+    "modal.deleteFileNo":"Нет, не удалять",
+
+    "modal.editFileTitle":"Редактировать файл",
+    "modal.editFileLabel":"Название",
+
+    "modal.shareTitle":"Выдать доступ",
+    "modal.shareLabel":"Введите ID пользователя",
+    "modal.sharePlaceholder":"Например: 123456789",
+    "modal.shareRole":"Роль",
+    "modal.roleEditor":"Редактор",
+    "modal.roleEditorDesc":"Пользователь с этой ролью может редактировать доступный ему объект в рамках предусмотренных возможностей интерфейса.",
+    "modal.roleViewer":"Наблюдатель",
+    "modal.roleViewerDesc":"Пользователь получает доступ для просмотра.",
+
+    "modal.createProjectTitle":"Создать проект",
+    "modal.projectNameLabel":"Название проекта",
+    "modal.projectNamePlaceholder":"Введите название проекта",
+    "modal.createProjectBtn":"Создать проект",
+    "modal.noCreateProject":"Не создавать проект",
+
+    "modal.deleteProjectTitle":"Вы точно хотите удалить этот проект?",
+    "modal.deleteProjectDesc":"Проект будет удалён из списка проектов.",
+    "modal.deleteProjectYes":"Да, удалить проект",
+    "modal.deleteProjectNo":"Нет, не удалять проект",
+
+    "notif.fileUploaded":"Файл успешно загружен",
+    "notif.accessGranted":"Вам предоставили доступ к проекту",
+    "notif.fileChanged":"Файл был изменён",
+    "notif.newMember":"Новый пользователь получил доступ к вашему проекту",
+    "notif.projectCreated":"Проект успешно создан",
+
+    "meta.today":"Сегодня",
+    "meta.yesterday":"Вчера",
+    "meta.gb":"ГБ",
+    "meta.mb":"МБ",
+    "meta.kb":"КБ"
+  },
+  en: {
+    "nav.section":"Storage",
+    "nav.upload":"Upload",
+    "nav.files":"My uploads",
+    "nav.projects":"My projects",
+    "nav.profile":"Profile",
+    "nav.settings":"Settings",
+
+    "auth.register.title":"Create an account",
+    "auth.register.desc":"Create an account in oura drop me fail to upload, store and share files.",
+    "auth.register.yandex":"Sign up with Yandex",
+    "auth.register.google":"Sign up with Google",
+    "auth.login.title":"Sign in",
+    "auth.login.desc":"Sign in to oura drop me fail to continue working with files and projects.",
+    "auth.login.yandex":"Sign in with Yandex",
+    "auth.login.google":"Sign in with Google",
+    "auth.toLogin":"Already have an account?",
+    "auth.toLoginBtn":"Sign in",
+    "auth.toRegister":"No account?",
+    "auth.toRegisterBtn":"Sign up",
+    "auth.foot":"Frontend prototype · Demo authorization",
+
+    "toast.yandexRegister":"Demo sign-up via Yandex",
+    "toast.googleRegister":"Demo sign-up via Google",
+    "toast.yandexLogin":"Demo sign-in via Yandex",
+    "toast.googleLogin":"Demo sign-in via Google",
+    "toast.saved":"Changes saved",
+    "toast.deleted":"File deleted",
+    "toast.projectCreated":"Project created",
+    "toast.projectDeleted":"Project deleted",
+    "toast.uploaded":"File uploaded successfully",
+    "toast.accessGranted":"Access granted",
+    "toast.downloadStart":"Download started",
+    "toast.rename":"File name updated",
+    "toast.allRead":"All notifications marked as read",
+    "toast.allCleared":"Notifications cleared",
+    "toast.loggedOut":"You have signed out",
+    "toast.copied":"ID copied",
+    "toast.uploadInProgress":"Please wait for the current upload to finish",
+
+    "upload.title":"Upload",
+    "upload.dropTitle":"Drop your file here",
+    "upload.dropSub":"or choose a file from your device",
+    "upload.choose":"Choose file",
+    "upload.progressTitle":"File upload",
+    "upload.loaded":"Uploaded",
+    "upload.remaining":"Time remaining",
+    "upload.speed":"Speed",
+    "upload.complete":"File uploaded successfully",
+    "upload.remove":"Remove from queue",
+
+    "files.title":"My uploads",
+    "files.sub":"All files you have uploaded to oura drop me fail.",
+    "files.download":"Download file",
+    "files.empty":"You have no uploaded files yet",
+    "files.emptySub":"Upload your first file so it appears here.",
+    "files.emptyBtn":"Upload file",
+
+    "projects.title":"My projects",
+    "projects.sub":"Projects bring files and teammates together in one space.",
+    "projects.create":"Create project",
+    "projects.empty":"You have no projects yet",
+    "projects.emptySub":"Create your first project to start working with files and members.",
+    "projects.emptyBtn":"Create project",
+    "projects.files":"files",
+    "projects.members":"members",
+    "projects.created":"Created",
+
+    "project.back":"Back to projects",
+    "project.filesTitle":"Project files",
+    "project.uploadComplete":"File added to the project",
+    "project.statFiles":"Files in project",
+    "project.statSize":"Total size",
+    "project.statMembers":"Members",
+    "project.statModified":"Last modified",
+    "project.noFiles":"No files in this project yet",
+    "project.noFilesSub":"Upload the first file to this project.",
+    "project.noFilesBtn":"Upload file",
+    "project.uploadedBy":"Uploaded by",
+
+    "project.membersTitle":"Project members",
+    "project.addMember":"Add member",
+    "project.addMemberTitle":"Add member",
+    "project.memberIdLabel":"User ID",
+    "project.memberIdPlaceholder":"Enter user ID",
+    "project.memberRoleLabel":"User role",
+    "project.roleEditorDesc":"Can work with the project content",
+    "project.roleViewerDesc":"Can view the project content",
+    "project.addMemberBtn":"Add member",
+    "project.notAddMember":"Don't add",
+    "project.memberAdded":"Member added to the project",
+    "project.errEnterId":"Please enter the user ID",
+    "project.errInvalidId":"Please enter a valid user ID",
+    "project.errDuplicate":"This user is already a member of the project",
+    "project.errNotFound":"User with this ID was not found",
+    "project.membersEmpty":"No members in the project yet",
+    "project.membersEmptySub":"Add a user by their ID.",
+    "project.roleEditor":"Editor",
+    "project.roleViewer":"Viewer",
+    "project.memberRole":"Role",
+
+    "profile.title":"Profile",
+    "profile.id":"ID",
+    "profile.copyId":"Copy",
+    "profile.statFiles":"Files uploaded",
+    "profile.statProjects":"Projects created",
+    "profile.statFree":"Space left",
+    "profile.statTotal":"Total file size",
+    "profile.changeAvatar":"Change avatar",
+    "profile.removeAvatar":"Remove avatar",
+    "profile.changeCover":"Change cover",
+    "profile.removeCover":"Remove cover",
+    "profile.coverHint":"Change cover",
+    "profile.confirmRemoveAvatar":"Are you sure you want to remove the avatar?",
+    "profile.confirmRemoveCover":"Are you sure you want to remove the cover?",
+    "profile.yesRemove":"Yes, remove",
+    "profile.no":"No",
+    "profile.avatarUpdated":"Avatar updated",
+    "profile.avatarRemoved":"Avatar removed",
+    "profile.coverUpdated":"Cover updated",
+    "profile.coverRemoved":"Cover removed",
+    "profile.invalidImage":"Please choose an image.",
+    "profile.imageTooLarge":"Image is too large. Maximum size is 5 MB.",
+    "profile.uploadFailed":"Failed to load the image.",
+
+    "settings.title":"Settings",
+    "settings.sub":"Manage the appearance and language of the interface.",
+    "settings.theme":"Theme",
+    "settings.themeDesc":"Choose the interface appearance.",
+    "settings.themeLight":"Light",
+    "settings.themeDark":"Dark",
+    "settings.themeSystem":"System",
+    "settings.lang":"Language",
+    "settings.langDesc":"Choose the interface language.",
+    "settings.logout":"Sign out",
+    "settings.logoutDesc":"You will return to the sign-in screen.",
+    "settings.logoutBtn":"Sign out",
+    "settings.save":"Save",
+    "settings.discard":"Don't save",
+
+    "notif.title":"Notifications",
+    "notif.readAll":"Mark all as read",
+    "notif.clearAll":"Delete all notifications",
+    "notif.empty":"You have no notifications yet",
+
+    "common.delete":"Delete",
+    "common.edit":"Edit",
+    "common.share":"Grant access",
+    "common.cancel":"Cancel",
+    "common.close":"Close",
+    "common.save":"Save",
+    "common.dontSave":"Don't save",
+
+    "modal.deleteFileTitle":"Are you sure you want to delete this file?",
+    "modal.deleteFileDesc":"After deletion the file will no longer appear in your uploads.",
+    "modal.deleteFileYes":"Yes, delete",
+    "modal.deleteFileNo":"No, don't delete",
+
+    "modal.editFileTitle":"Edit file",
+    "modal.editFileLabel":"Name",
+
+    "modal.shareTitle":"Grant access",
+    "modal.shareLabel":"Enter the user ID",
+    "modal.sharePlaceholder":"For example: 123456789",
+    "modal.shareRole":"Role",
+    "modal.roleEditor":"Editor",
+    "modal.roleEditorDesc":"A user with this role can edit the object available to them within the capabilities provided by the interface.",
+    "modal.roleViewer":"Viewer",
+    "modal.roleViewerDesc":"The user gets view-only access.",
+
+    "modal.createProjectTitle":"Create project",
+    "modal.projectNameLabel":"Project name",
+    "modal.projectNamePlaceholder":"Enter the project name",
+    "modal.createProjectBtn":"Create project",
+    "modal.noCreateProject":"Don't create project",
+
+    "modal.deleteProjectTitle":"Are you sure you want to delete this project?",
+    "modal.deleteProjectDesc":"The project will be removed from the project list.",
+    "modal.deleteProjectYes":"Yes, delete project",
+    "modal.deleteProjectNo":"No, don't delete project",
+
+    "notif.fileUploaded":"File uploaded successfully",
+    "notif.accessGranted":"You were granted access to a project",
+    "notif.fileChanged":"A file was modified",
+    "notif.newMember":"A new user got access to your project",
+    "notif.projectCreated":"Project created successfully",
+
+    "meta.today":"Today",
+    "meta.yesterday":"Yesterday",
+    "meta.gb":"GB",
+    "meta.mb":"MB",
+    "meta.kb":"KB"
+  }
+};
+
+/* ============================================================
+   4. STATE + PERSISTENCE
+   ============================================================ */
+/* Ключ версии поднят до v2: старые демо-данные из v1 больше не читаются,
+   чтобы при первом запуске новой версии аккаунт был полностью пустым. */
+const STORAGE_KEY = "odmf_state_v2";
+const AUTH_KEY    = "ouraAuthenticated";
+const TOTAL_SPACE = 50 * 1024 * 1024 * 1024; // 50 ГБ — квота
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;      // 5 МБ
+
+function uid(prefix){
+  return (prefix || "id") + "_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
+
+/**
+ * Начальное состояние НОВОГО аккаунта.
+ * Никаких демонстрационных данных: ни файлов, ни проектов,
+ * ни уведомлений, ни участников.
+ */
+function defaultState(){
+  return {
+    user: {
+      first: "Александр",
+      last:  "Иванов",
+      id:    "123456789",
+      avatarImage: "",
+      coverImage:  ""
+    },
+    settings: { theme:"light", lang:"ru" },
+    files: [],
+    projects: [],
+    notifications: []
+  };
+}
+
+let state = loadState();
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+
+    // Гарантируем корректные типы даже если что-то записано некорректно
+    const projects = (Array.isArray(parsed.projects) ? parsed.projects : []).map(p => ({
+      id: p.id || uid("p"),
+      name: p.name || "Проект",
+      createdAt: p.createdAt || Date.now(),
+      lastModified: p.lastModified || p.createdAt || Date.now(),
+      members: Array.isArray(p.members) ? p.members : []
+    }));
+
+    return {
+      user: Object.assign(base.user, parsed.user || {}),
+      settings: Object.assign(base.settings, parsed.settings || {}),
+      files: Array.isArray(parsed.files) ? parsed.files : [],
+      projects: projects,
+      notifications: Array.isArray(parsed.notifications) ? parsed.notifications : []
+    };
+  } catch(e){
+    return defaultState();
+  }
+}
+function saveState(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      user: state.user,
+      settings: state.settings,
+      files: state.files,
+      projects: state.projects,
+      notifications: state.notifications
+    }));
+  } catch(e){ /* quota — игнорируем в прототипе */ }
+}
+
+/* ============================================================
+   5. HELPERS
+   ============================================================ */
+function t(key){
+  const lang = state.settings.lang || "ru";
+  return (I18N[lang] && I18N[lang][key]) || (I18N.ru[key]) || key;
+}
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function fmtSize(bytes){
+  if(!bytes && bytes !== 0) return "0 " + t("meta.mb");
+  const kb = 1024, mb = kb*1024, gb = mb*1024;
+  if(bytes >= gb) return (bytes/gb).toFixed(1) + " " + t("meta.gb");
+  if(bytes >= mb) return (bytes/mb).toFixed(1) + " " + t("meta.mb");
+  if(bytes >= kb) return (bytes/kb).toFixed(0) + " " + t("meta.kb");
+  return bytes + " B";
+}
+function fmtDate(ts){
+  const d = new Date(ts);
+  const now = new Date();
+  const loc = state.settings.lang === "en" ? "en-US" : "ru-RU";
+  const time = d.toLocaleTimeString(loc, { hour:"2-digit", minute:"2-digit" });
+  if(d.toDateString() === now.toDateString()) return t("meta.today") + ", " + time;
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if(d.toDateString() === y.toDateString()) return t("meta.yesterday") + ", " + time;
+  return d.toLocaleDateString(loc, { day:"numeric", month:"short", year:"numeric" });
+}
+function fmtDateShort(ts){
+  const loc = state.settings.lang === "en" ? "en-US" : "ru-RU";
+  return new Date(ts).toLocaleDateString(loc, { day:"numeric", month:"short", year:"numeric" });
+}
+function fileKind(name, mime){
+  const ext = (name.split(".").pop() || "").toLowerCase();
+  if(mime && mime.startsWith("image/")) return "img";
+  if(mime && mime.startsWith("video/")) return "vid";
+  if(ext === "pdf") return "pdf";
+  if(["zip","rar","7z","tar","gz"].includes(ext)) return "zip";
+  if(["png","jpg","jpeg","gif","webp","svg","bmp","avif"].includes(ext)) return "img";
+  if(["mp4","mov","avi","mkv","webm"].includes(ext)) return "vid";
+  return "file";
+}
+function kindIcon(kind){
+  if(kind === "img") return ic("image");
+  if(kind === "vid") return ic("video");
+  if(kind === "zip") return ic("archive");
+  return ic("file");
+}
+function initials(u){
+  return ((u.first || " ").trim()[0] || "") + ((u.last || " ").trim()[0] || "");
+}
+function mimeLabel(file){
+  const kind = fileKind(file.name, file.mime);
+  const ext = (file.name.split(".").pop() || "").toUpperCase();
+  return ext ? ext + " · " + kind.toUpperCase() : kind.toUpperCase();
+}
+function bytesToMB(b){ return b / (1024*1024); }
+
+/* --- Плюрализация (русский / английский) --- */
+function pluralRu(n, one, few, many){
+  const m10 = n % 10, m100 = n % 100;
+  if(m10 === 1 && m100 !== 11) return one;
+  if(m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+}
+function wordFiles(n){
+  return state.settings.lang === "en"
+    ? (n === 1 ? "file" : "files")
+    : pluralRu(n, "файл", "файла", "файлов");
+}
+function wordProjects(n){
+  return state.settings.lang === "en"
+    ? (n === 1 ? "project" : "projects")
+    : pluralRu(n, "проект", "проекта", "проектов");
+}
+
+/* --- Project members helpers --- */
+function projectMembersCount(p){
+  // +1 — владелец проекта (владелец не отображается в списке, но учитывается в счётчике)
+  return (Array.isArray(p.members) ? p.members.length : 0) + 1;
+}
+function memberDisplayName(m){
+  const u = KNOWN_USERS[m.id];
+  return u ? u.name : ("Пользователь " + m.id);
+}
+function memberInitials(m){
+  const u = KNOWN_USERS[m.id];
+  if(u) return u.initials;
+  return String(m.id).slice(0, 2).toUpperCase();
+}
+function roleLabel(role){
+  return role === "editor" ? t("project.roleEditor") : t("project.roleViewer");
+}
+
+/* ============================================================
+   6. TOASTS
+   ============================================================ */
+function showToast(message, type){
+  const root = document.getElementById("toastRoot");
+  const el = document.createElement("div");
+  el.className = "toast " + (type || "");
+  const iconName = type === "success" ? "check" : type === "error" ? "alert" : "info";
+  el.innerHTML = '<span class="toast-ic">' + ic(iconName) + '</span><span>' + escapeHTML(message) + '</span>';
+  root.appendChild(el);
+  setTimeout(() => {
+    el.classList.add("out");
+    setTimeout(() => el.remove(), 260);
+  }, 3200);
+}
+
+/* ============================================================
+   7. MODALS
+   ============================================================ */
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalBox = document.getElementById("modalBox");
+
+function openModal(opts){
+  const o = opts || {};
+  modalBox.className = "modal " + (o.size || "");
+  modalBox.innerHTML =
+    '<div class="modal-head">' +
+      (o.icon ? '<div class="' + (o.iconClass || "modal-icon-warn") + '">' + o.icon + '</div>' : '') +
+      '<div style="flex:1;min-width:0">' +
+        '<h2 class="modal-title">' + escapeHTML(o.title || "") + '</h2>' +
+        (o.subtitle ? '<p class="modal-sub">' + escapeHTML(o.subtitle) + '</p>' : '') +
+      '</div>' +
+      '<button class="icon-btn sm" type="button" data-modal-close aria-label="' + escapeHTML(t("common.close")) + '">' + ic("x") + '</button>' +
+    '</div>' +
+    '<div class="modal-body">' + (o.body || "") + '</div>' +
+    (o.actions && o.actions.length
+      ? '<div class="modal-foot">' + o.actions.map((a, i) =>
+          '<button type="button" class="btn ' + (a.class || "btn-ghost") + '" data-modal-action="' + i + '">' + escapeHTML(a.label) + '</button>'
+        ).join("") + '</div>'
+      : '');
+
+  modalBackdrop.hidden = false;
+  modalBackdrop.style.pointerEvents = "auto";
+  document.body.style.overflow = "hidden";
+
+  modalBox.querySelectorAll("[data-modal-close]").forEach(b => {
+    b.addEventListener("click", closeModal);
+  });
+  modalBox.querySelectorAll("[data-modal-action]").forEach(b => {
+    b.addEventListener("click", () => {
+      const action = (o.actions || [])[Number(b.dataset.modalAction)];
+      if(action && typeof action.onClick === "function"){
+        const keep = action.onClick();
+        if(keep === false) return;
+      }
+      if(!action || action.close !== false) closeModal();
+    });
+  });
+
+  if(typeof o.onMount === "function") o.onMount(modalBox);
+
+  const first = modalBox.querySelector("input, textarea, .btn-primary, button");
+  if(first) setTimeout(() => first.focus(), 60);
+}
+function closeModal(){
+  modalBackdrop.hidden = true;
+  modalBackdrop.style.pointerEvents = "none";
+  modalBox.innerHTML = "";
+  document.body.style.overflow = "";
+}
+modalBackdrop.addEventListener("mousedown", e => {
+  if(e.target === modalBackdrop) closeModal();
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape"){
+    if(!modalBackdrop.hidden){ closeModal(); return; }
+    closePopover();
+    closeNotifPanel();
+    closeSidebar();
+  }
+});
+
+/* ============================================================
+   8. POPOVER MENU
+   ============================================================ */
+let popoverEl = null;
+function closePopover(){
+  if(popoverEl){ popoverEl.remove(); popoverEl = null; }
+}
+function openPopover(anchor, items){
+  closePopover();
+  const el = document.createElement("div");
+  el.className = "popover";
+  el.setAttribute("role", "menu");
+  el.innerHTML = items.map((it, i) =>
+    '<button type="button" class="popover-item ' + (it.danger ? "danger" : "") + '" role="menuitem" data-pop="' + i + '">' +
+      (it.icon || "") + '<span>' + escapeHTML(it.label) + '</span>' +
+    '</button>'
+  ).join("");
+  document.body.appendChild(el);
+
+  const r = anchor.getBoundingClientRect();
+  const w = el.offsetWidth, h = el.offsetHeight;
+  let top = r.bottom + 8;
+  let left = r.right - w;
+  if(top + h > window.innerHeight - 12) top = Math.max(12, r.top - h - 8);
+  if(left < 12) left = 12;
+  if(left + w > window.innerWidth - 12) left = window.innerWidth - w - 12;
+  el.style.top = top + "px";
+  el.style.left = left + "px";
+
+  el.querySelectorAll("[data-pop]").forEach(b => {
+    b.addEventListener("click", () => {
+      const item = items[Number(b.dataset.pop)];
+      closePopover();
+      if(item && typeof item.onClick === "function") item.onClick();
+    });
+  });
+
+  popoverEl = el;
+  setTimeout(() => {
+    document.addEventListener("mousedown", outsidePopover, true);
+    window.addEventListener("resize", closePopover);
+    window.addEventListener("scroll", closePopover, true);
+  }, 0);
+}
+function outsidePopover(e){
+  if(popoverEl && !popoverEl.contains(e.target)){
+    closePopover();
+    document.removeEventListener("mousedown", outsidePopover, true);
+    window.removeEventListener("resize", closePopover);
+    window.removeEventListener("scroll", closePopover, true);
+  }
+}
+
+/* ============================================================
+   9. THEME
+   ============================================================ */
+function applyTheme(){
+  const pref = state.settings.theme || "light";
+  let actual = pref;
+  if(pref === "system"){
+    actual = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  document.documentElement.setAttribute("data-theme", actual);
+}
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  if(state.settings.theme === "system") applyTheme();
+});
+
+/* ============================================================
+   10. AUTH SCREEN
+   ============================================================ */
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.documentElement.lang = state.settings.lang;
+}
+function showAuthView(which){
+  document.getElementById("viewRegister").hidden = which !== "register";
+  document.getElementById("viewLogin").hidden = which !== "login";
+}
+function initAuth(){
+  document.getElementById("goLogin").addEventListener("click", () => showAuthView("login"));
+  document.getElementById("goRegister").addEventListener("click", () => showAuthView("register"));
+
+  document.querySelectorAll("[data-oauth]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const provider = btn.dataset.oauth;
+      const mode = btn.dataset.oauthMode;
+      let key;
+      if(mode === "register") key = provider === "yandex" ? "toast.yandexRegister" : "toast.googleRegister";
+      else                     key = provider === "yandex" ? "toast.yandexLogin" : "toast.googleLogin";
+      showToast(t(key));
+      setTimeout(completeAuth, 800);
+    });
+  });
+}
+
+function completeAuth(){
+  try { localStorage.setItem(AUTH_KEY, "true"); } catch(e){}
+  setAppState("app");
+  openAppContent();
+}
+
+/* ============================================================
+   11. APP SHELL / STATE SWITCH
+   ============================================================ */
+const appScreen = document.getElementById("appScreen");
+const authScreen = document.getElementById("authScreen");
+const mainArea = document.getElementById("mainArea");
+const sidebar = document.getElementById("sidebar");
+const sidebarScrim = document.getElementById("sidebarScrim");
+
+let currentPage = "upload";
+let currentProjectId = null;
+
+function setAppState(mode){
+  if(mode === "auth"){
+    document.body.classList.remove("app-mode");
+    document.body.classList.add("auth-mode");
+    authScreen.hidden = false;
+    appScreen.hidden = true;
+    closeNotifPanel();
+    closeSidebar();
+    closePopover();
+    closeModal();
+    mainArea.innerHTML = "";
+  } else {
+    document.body.classList.remove("auth-mode");
+    document.body.classList.add("app-mode");
+    authScreen.hidden = true;
+    appScreen.hidden = false;
+  }
+}
+
+function openAppContent(){
+  applyTheme();
+  applyI18n();
+  renderUserChrome();
+  navigate("files"); // Новая точка входа: показываем пустые «Мои загрузки»
+  renderNotifPanel();
+}
+function logout(){
+  try { localStorage.removeItem(AUTH_KEY); } catch(e){}
+  setAppState("auth");
+  showAuthView("login");
+  showToast(t("toast.loggedOut"));
+}
+
+function renderUserChrome(){
+  document.getElementById("sideName").textContent = state.user.first + " " + state.user.last;
+  const sideAvatar = document.getElementById("sideAvatar");
+  if(state.user.avatarImage){
+    sideAvatar.innerHTML = '<img src="' + state.user.avatarImage + '" alt="">';
+  } else {
+    sideAvatar.textContent = initials(state.user);
+  }
+}
+
+function initNavigation(){
+  document.querySelectorAll("[data-page]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      navigate(btn.dataset.page);
+      closeSidebar();
+    });
+  });
+  document.getElementById("burgerBtn").addEventListener("click", openSidebar);
+  sidebarScrim.addEventListener("click", closeSidebar);
+}
+function openSidebar(){
+  sidebar.classList.add("open");
+  sidebarScrim.hidden = false;
+  sidebarScrim.style.pointerEvents = "auto";
+}
+function closeSidebar(){
+  sidebar.classList.remove("open");
+  sidebarScrim.hidden = true;
+  sidebarScrim.style.pointerEvents = "none";
+}
+function setActiveNav(page){
+  document.querySelectorAll(".nav-item, .profile-btn").forEach(el => {
+    el.classList.toggle("active", el.dataset.page === page);
+  });
+  const gear = document.getElementById("settingsBtn");
+  gear.classList.toggle("active", page === "settings");
+}
+
+function navigate(page, param){
+  currentPage = page;
+  currentProjectId = param || null;
+  setActiveNav(page === "project" ? "projects" : page);
+  mainArea.scrollTop = 0;
+  closePopover();
+
+  switch(page){
+    case "upload":    mainArea.innerHTML = renderUploadPage();    bindUploadPage(); break;
+    case "files":     mainArea.innerHTML = renderFilesPage();     bindFilesPage(); break;
+    case "projects":  mainArea.innerHTML = renderProjectsPage();  bindProjectsPage(); break;
+    case "project":   mainArea.innerHTML = renderProjectPage(currentProjectId); bindProjectPage(currentProjectId); break;
+    case "profile":   mainArea.innerHTML = renderProfilePage();   bindProfilePage(); break;
+    case "settings":  mainArea.innerHTML = renderSettingsPage();  bindSettingsPage(); break;
+    default:          mainArea.innerHTML = renderUploadPage();    bindUploadPage();
+  }
+}
+
+/* ============================================================
+   12. UPLOAD COMPONENT
+   ============================================================ */
+function uploadBlockHTML(){
+  return '' +
+  '<div class="dropzone" data-dropzone tabindex="0" role="button" aria-label="' + escapeHTML(t("upload.choose")) + '">' +
+    '<div class="dz-icon">' + ic("upload") + '</div>' +
+    '<div class="dz-title">' + escapeHTML(t("upload.dropTitle")) + '</div>' +
+    '<div class="dz-sub">' + escapeHTML(t("upload.dropSub")) + '</div>' +
+    '<button class="btn btn-primary" type="button" data-choose>' + ic("upload") + '<span>' + escapeHTML(t("upload.choose")) + '</span></button>' +
+    '<input type="file" hidden data-fileinput>' +
+  '</div>' +
+  '<div class="file-card" data-filecard hidden></div>' +
+  '<div class="progress-card">' +
+    '<div class="progress-head">' +
+      '<span class="progress-title">' + escapeHTML(t("upload.progressTitle")) + '</span>' +
+      '<span class="progress-pct" data-ppct>0%</span>' +
+    '</div>' +
+    '<div class="progress-track"><div class="progress-fill" data-pfill></div></div>' +
+    '<div class="progress-meta">' +
+      '<span><b>' + escapeHTML(t("upload.loaded")) + ':</b> <span data-pdone>0 ' + escapeHTML(t("meta.mb")) + ' / 0 ' + escapeHTML(t("meta.mb")) + '</span></span>' +
+      '<span><b>' + escapeHTML(t("upload.remaining")) + ':</b> <span data-ptime>00:00</span></span>' +
+      '<span><b>' + escapeHTML(t("upload.speed")) + ':</b> <span data-pspeed>0.0 ' + escapeHTML(t("meta.mb")) + '/s</span></span>' +
+    '</div>' +
+    '<div data-pdone-wrap></div>' +
+  '</div>';
+}
+
+function bindUploader(root, projectId, onComplete){
+  const dz        = root.querySelector("[data-dropzone]");
+  const input     = root.querySelector("[data-fileinput]");
+  const chooseBtn = root.querySelector("[data-choose]");
+  const card      = root.querySelector("[data-filecard]");
+  const pctEl     = root.querySelector("[data-ppct]");
+  const fillEl    = root.querySelector("[data-pfill]");
+  const doneEl    = root.querySelector("[data-pdone]");
+  const timeEl    = root.querySelector("[data-ptime]");
+  const speedEl   = root.querySelector("[data-pspeed]");
+  const doneWrap  = root.querySelector("[data-pdone-wrap]");
+
+  let uploading = false;
+  let timer = null;
+
+  function resetProgressUI(){
+    pctEl.textContent = "0%";
+    fillEl.style.width = "0%";
+    fillEl.classList.remove("done");
+    doneEl.textContent = "0 " + t("meta.mb") + " / 0 " + t("meta.mb");
+    timeEl.textContent = "00:00";
+    speedEl.textContent = "0.0 " + t("meta.mb") + "/s";
+    doneWrap.innerHTML = "";
+  }
+
+  function renderFileCard(file){
+    const kind = fileKind(file.name, file.type);
+    card.hidden = false;
+    card.innerHTML =
+      '<div class="file-ic ' + kind + '">' + kindIcon(kind) + '</div>' +
+      '<div class="file-meta">' +
+        '<div class="file-name">' + escapeHTML(file.name) + '</div>' +
+        '<div class="file-sub">' + fmtSize(file.size) + ' · ' + escapeHTML(mimeLabel({ name:file.name, mime:file.type })) + '</div>' +
+      '</div>' +
+      '<button class="icon-btn sm" type="button" data-remove aria-label="' + escapeHTML(t("upload.remove")) + '" title="' + escapeHTML(t("upload.remove")) + '">' + ic("trash") + '</button>';
+
+    card.querySelector("[data-remove]").addEventListener("click", () => {
+      if(uploading){ showToast(t("toast.uploadInProgress")); return; }
+      card.hidden = true;
+      card.innerHTML = "";
+      input.value = "";
+      resetProgressUI();
+    });
+  }
+
+  function startUpload(file){
+    if(uploading){ showToast(t("toast.uploadInProgress")); return; }
+    uploading = true;
+    renderFileCard(file);
+    resetProgressUI();
+
+    const totalBytes = file.size || (5 * 1024 * 1024);
+    const totalMB = Math.max(0.1, bytesToMB(totalBytes));
+    const targetSpeed = Math.max(1.4, totalMB / 5.5);
+    let uploaded = 0;
+
+    doneEl.textContent = "0 " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
+
+    timer = setInterval(() => {
+      const jitter = 0.75 + Math.random() * 0.6;
+      const stepMB = targetSpeed * 0.11 * jitter;
+      uploaded = Math.min(totalMB, uploaded + stepMB);
+
+      const percent = Math.min(100, Math.floor((uploaded / totalMB) * 100));
+      const remaining = Math.max(0, (totalMB - uploaded) / Math.max(0.1, targetSpeed));
+      const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+      const ss = String(Math.floor(remaining % 60)).padStart(2, "0");
+
+      pctEl.textContent = percent + "%";
+      fillEl.style.width = percent + "%";
+      doneEl.textContent = uploaded.toFixed(1) + " " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
+      timeEl.textContent = mm + ":" + ss;
+      speedEl.textContent = (targetSpeed * jitter).toFixed(1) + " " + t("meta.mb") + "/s";
+
+      if(uploaded >= totalMB){
+        clearInterval(timer);
+        timer = null;
+        finishUpload(file, totalMB);
+      }
+    }, 110);
+  }
+
+  function finishUpload(file, totalMB){
+    pctEl.textContent = "100%";
+    fillEl.style.width = "100%";
+    fillEl.classList.add("done");
+    doneEl.textContent = totalMB.toFixed(1) + " " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
+    timeEl.textContent = "00:00";
+    speedEl.textContent = "0.0 " + t("meta.mb") + "/s";
+
+    const msg = projectId ? t("project.uploadComplete") : t("upload.complete");
+    doneWrap.innerHTML = '<div class="upload-done">' + ic("check") + '<span>' + escapeHTML(msg) + '</span></div>';
+
+    const newFile = {
+      id: uid("f"),
+      name: file.name,
+      size: file.size || Math.round(totalMB * 1024 * 1024),
+      mime: file.type || "application/octet-stream",
+      uploadedAt: Date.now(),
+      projectId: projectId || null,
+      uploader: state.user.first + " " + state.user.last
+    };
+    state.files.push(newFile);
+
+    if(projectId){
+      const p = state.projects.find(x => x.id === projectId);
+      if(p) p.lastModified = Date.now();
+    }
+
+    addNotification("upload", "notif.fileUploaded");
+    saveState();
+    showToast(projectId ? t("project.uploadComplete") : t("toast.uploaded"), "success");
+
+    uploading = false;
+    if(typeof onComplete === "function") onComplete(newFile);
+  }
+
+  function handleFiles(fileList){
+    const file = fileList && fileList[0];
+    if(!file) return;
+    if(uploading){ showToast(t("toast.uploadInProgress")); return; }
+    startUpload(file);
+  }
+
+  dz.addEventListener("click", e => {
+    if(e.target.closest("[data-choose]")) return;
+    input.click();
+  });
+  dz.addEventListener("keydown", e => {
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); input.click(); }
+  });
+  chooseBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    input.click();
+  });
+  input.addEventListener("change", () => {
+    handleFiles(input.files);
+    input.value = "";
+  });
+
+  ["dragenter","dragover"].forEach(evt => {
+    dz.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); dz.classList.add("dragover"); });
+  });
+  ["dragleave","drop"].forEach(evt => {
+    dz.addEventListener(evt, e => {
+      e.preventDefault(); e.stopPropagation();
+      if(evt === "dragleave" && dz.contains(e.relatedTarget)) return;
+      dz.classList.remove("dragover");
+    });
+  });
+  dz.addEventListener("drop", e => {
+    handleFiles(e.dataTransfer && e.dataTransfer.files);
+  });
+  document.addEventListener("dragover", e => e.preventDefault());
+  document.addEventListener("drop", e => e.preventDefault());
+}
+
+/* ============================================================
+   13. PAGE: UPLOAD
+   ============================================================ */
+function renderUploadPage(){
+  return '' +
+  '<div class="page">' +
+    '<div class="page-head center">' +
+      '<h1 class="page-title">' + escapeHTML(t("upload.title")) + '</h1>' +
+      '<p class="page-sub">' + escapeHTML(t("upload.dropSub")) + '</p>' +
+    '</div>' +
+    '<div id="uploadRoot">' + uploadBlockHTML() + '</div>' +
+  '</div>';
+}
+function bindUploadPage(){
+  const root = document.getElementById("uploadRoot");
+  bindUploader(root, null, () => {});
+}
+
+/* ============================================================
+   14. PAGE: MY FILES
+   ============================================================ */
+function renderFilesPage(){
+  const files = state.files.slice().sort((a,b) => b.uploadedAt - a.uploadedAt);
+  let content;
+
+  if(!files.length){
+    content = emptyState("file", t("files.empty"), t("files.emptySub"), t("files.emptyBtn"), "upload");
+  } else {
+    content = '<div class="list">' + files.map(fileRowHTML).join("") + '</div>';
+  }
+
+  return '' +
+  '<div class="page">' +
+    '<div class="page-head center">' +
+      '<h1 class="page-title">' + escapeHTML(t("files.title")) + '</h1>' +
+      '<p class="page-sub">' + escapeHTML(t("files.sub")) + '</p>' +
+    '</div>' +
+    content +
+  '</div>';
+}
+
+function fileRowHTML(f){
+  const kind = fileKind(f.name, f.mime);
+  const project = f.projectId ? state.projects.find(p => p.id === f.projectId) : null;
+  return '' +
+  '<div class="row" data-file-id="' + f.id + '">' +
+    '<div class="file-ic ' + kind + '">' + kindIcon(kind) + '</div>' +
+    '<div class="row-body">' +
+      '<div class="row-title">' + escapeHTML(f.name) + '</div>' +
+      '<div class="row-sub">' +
+        '<span>' + fmtSize(f.size) + '</span>' +
+        '<span>' + fmtDate(f.uploadedAt) + '</span>' +
+        (project ? '<span class="chip accent">' + escapeHTML(project.name) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="row-actions">' +
+      '<button type="button" class="btn btn-soft btn-sm" data-download title="' + escapeHTML(t("files.download")) + '">' + ic("download") + '<span>' + escapeHTML(t("files.download")) + '</span></button>' +
+      '<button type="button" class="icon-btn sm" data-more aria-label="' + escapeHTML(t("common.edit")) + '">' + ic("more") + '</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function bindFilesPage(){
+  document.querySelectorAll("#mainArea .row[data-file-id]").forEach(row => {
+    const id = row.dataset.fileId;
+    row.querySelector("[data-download]").addEventListener("click", () => downloadFile(id));
+    row.querySelector("[data-more]").addEventListener("click", e => {
+      e.stopPropagation();
+      openFileMenu(e.currentTarget, id);
+    });
+  });
+
+  const emptyBtn = document.querySelector("#mainArea [data-empty-action='upload']");
+  if(emptyBtn) emptyBtn.addEventListener("click", () => navigate("upload"));
+}
+
+function openFileMenu(anchor, fileId){
+  openPopover(anchor, [
+    { label: t("common.delete"), icon: ic("trash"), danger: true, onClick: () => confirmDeleteFile(fileId) },
+    { label: t("common.edit"),   icon: ic("edit"),  onClick: () => openEditFile(fileId) },
+    { label: t("common.share"),  icon: ic("share"), onClick: () => openShareFile(fileId) }
+  ]);
+}
+
+function downloadFile(fileId){
+  const f = state.files.find(x => x.id === fileId);
+  if(!f) return;
+  const blob = new Blob(
+    ["oura drop me fail — демонстрационный файл\n\n" + f.name + "\n" + fmtSize(f.size) + "\n"],
+    { type: "text/plain;charset=utf-8" }
+  );
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = f.name.replace(/\.[^.]+$/, "") + "_odmf.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  showToast(t("toast.downloadStart"));
+}
+
+function confirmDeleteFile(fileId){
+  const f = state.files.find(x => x.id === fileId);
+  if(!f) return;
+  openModal({
+    size: "sm",
+    icon: ic("trash"),
+    title: t("modal.deleteFileTitle"),
+    subtitle: t("modal.deleteFileDesc"),
+    actions: [
+      { label: t("modal.deleteFileNo"), class: "btn-ghost", onClick: () => {} },
+      { label: t("modal.deleteFileYes"), class: "btn-danger", onClick: () => {
+          state.files = state.files.filter(x => x.id !== fileId);
+          saveState();
+          showToast(t("toast.deleted"), "success");
+          refreshCurrentPage();
+        } }
+    ]
+  });
+}
+
+function openEditFile(fileId){
+  const f = state.files.find(x => x.id === fileId);
+  if(!f) return;
+  openModal({
+    size: "sm",
+    title: t("modal.editFileTitle"),
+    body:
+      '<div class="field">' +
+        '<label for="editFileName">' + escapeHTML(t("modal.editFileLabel")) + '</label>' +
+        '<input class="input" id="editFileName" type="text" value="' + escapeHTML(f.name) + '">' +
+      '</div>',
+    actions: [
+      { label: t("common.dontSave"), class: "btn-ghost", onClick: () => {} },
+      { label: t("common.save"), class: "btn-primary", onClick: () => {
+          const input = document.getElementById("editFileName");
+          const val = (input.value || "").trim();
+          if(!val){ input.focus(); return false; }
+          f.name = val;
+          saveState();
+          showToast(t("toast.rename"), "success");
+          refreshCurrentPage();
+        } }
+    ]
+  });
+}
+
+function openShareFile(fileId){
+  openModal({
+    title: t("modal.shareTitle"),
+    body:
+      '<div class="field">' +
+        '<label for="shareUserId">' + escapeHTML(t("modal.shareLabel")) + '</label>' +
+        '<input class="input" id="shareUserId" type="text" inputmode="numeric" placeholder="' + escapeHTML(t("modal.sharePlaceholder")) + '">' +
+      '</div>' +
+      '<div class="field" style="margin-bottom:6px">' +
+        '<label>' + escapeHTML(t("modal.shareRole")) + '</label>' +
+        '<div class="segmented" data-role-seg style="width:100%">' +
+          '<button type="button" class="active" data-role="editor" style="flex:1">' + escapeHTML(t("modal.roleEditor")) + '</button>' +
+          '<button type="button" data-role="viewer" style="flex:1">' + escapeHTML(t("modal.roleViewer")) + '</button>' +
+        '</div>' +
+        '<p class="muted" style="font-size:12.5px;margin:10px 0 0;line-height:1.5" data-role-desc>' + escapeHTML(t("modal.roleEditorDesc")) + '</p>' +
+      '</div>',
+    actions: [
+      { label: t("common.dontSave"), class: "btn-ghost", onClick: () => {} },
+      { label: t("common.save"), class: "btn-primary", onClick: () => {
+          const idVal = (document.getElementById("shareUserId").value || "").trim();
+          if(!idVal){ document.getElementById("shareUserId").focus(); return false; }
+          addNotification("access", "notif.accessGranted");
+          saveState();
+          showToast(t("toast.accessGranted"), "success");
+        } }
+    ],
+    onMount: (box) => {
+      const seg = box.querySelector("[data-role-seg]");
+      const desc = box.querySelector("[data-role-desc]");
+      seg.querySelectorAll("button").forEach(b => {
+        b.addEventListener("click", () => {
+          seg.querySelectorAll("button").forEach(x => x.classList.remove("active"));
+          b.classList.add("active");
+          desc.textContent = b.dataset.role === "editor" ? t("modal.roleEditorDesc") : t("modal.roleViewerDesc");
+        });
+      });
+    }
+  });
+}
+
+/* ============================================================
+   15. PAGE: PROJECTS
+   ============================================================ */
+function renderProjectsPage(){
+  const projects = state.projects.slice().sort((a,b) => b.lastModified - a.lastModified);
+  let content;
+
+  if(!projects.length){
+    content = emptyState("folder", t("projects.empty"), t("projects.emptySub"), t("projects.emptyBtn"), "create-project");
+  } else {
+    content = '<div class="projects-grid">' + projects.map(projectCardHTML).join("") + '</div>';
+  }
+
+  return '' +
+  '<div class="page">' +
+    '<div class="page-head-row" style="margin-bottom:28px">' +
+      '<div class="page-head">' +
+        '<h1 class="page-title">' + escapeHTML(t("projects.title")) + '</h1>' +
+        '<p class="page-sub">' + escapeHTML(t("projects.sub")) + '</p>' +
+      '</div>' +
+      '<button type="button" class="btn btn-primary" data-create-project>' + ic("plus") + '<span>' + escapeHTML(t("projects.create")) + '</span></button>' +
+    '</div>' +
+    content +
+  '</div>';
+}
+
+function projectCardHTML(p){
+  const count = state.files.filter(f => f.projectId === p.id).length;
+  const membersCount = projectMembersCount(p);
+  return '' +
+  '<div class="project-card" data-project-id="' + p.id + '" role="button" tabindex="0">' +
+    '<button type="button" class="icon-btn sm pc-more" data-project-more aria-label="' + escapeHTML(t("common.edit")) + '">' + ic("more") + '</button>' +
+    '<div class="pc-top">' +
+      '<div class="pc-folder">' + ic("folder") + '</div>' +
+      '<div style="min-width:0;padding-right:36px">' +
+        '<div class="pc-name">' + escapeHTML(p.name) + '</div>' +
+        '<div class="pc-date">' + escapeHTML(t("projects.created")) + ' ' + fmtDateShort(p.createdAt) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="pc-stats">' +
+      '<span class="pc-stat">' + ic("file") + count + ' ' + escapeHTML(t("projects.files")) + '</span>' +
+      '<span class="pc-stat">' + ic("users") + membersCount + ' ' + escapeHTML(t("projects.members")) + '</span>' +
+    '</div>' +
+  '</div>';
+}
+
+function bindProjectsPage(){
+  const createBtn = document.querySelector("#mainArea [data-create-project]");
+  if(createBtn) createBtn.addEventListener("click", openCreateProject);
+  const emptyBtn = document.querySelector("#mainArea [data-empty-action='create-project']");
+  if(emptyBtn) emptyBtn.addEventListener("click", openCreateProject);
+
+  document.querySelectorAll("#mainArea .project-card").forEach(card => {
+    const id = card.dataset.projectId;
+    card.addEventListener("click", e => {
+      if(e.target.closest("[data-project-more]")) return;
+      navigate("project", id);
+    });
+    card.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); navigate("project", id); }
+    });
+    card.querySelector("[data-project-more]").addEventListener("click", e => {
+      e.stopPropagation();
+      openPopover(e.currentTarget, [
+        { label: t("common.delete"), icon: ic("trash"), danger: true, onClick: () => confirmDeleteProject(id) }
+      ]);
+    });
+  });
+}
+
+function openCreateProject(){
+  openModal({
+    size: "sm",
+    title: t("modal.createProjectTitle"),
+    body:
+      '<div class="field" style="margin-bottom:6px">' +
+        '<label for="newProjectName">' + escapeHTML(t("modal.projectNameLabel")) + '</label>' +
+        '<input class="input" id="newProjectName" type="text" placeholder="' + escapeHTML(t("modal.projectNamePlaceholder")) + '">' +
+      '</div>',
+    actions: [
+      { label: t("modal.noCreateProject"), class: "btn-ghost", onClick: () => {} },
+      { label: t("modal.createProjectBtn"), class: "btn-primary", onClick: () => {
+          const input = document.getElementById("newProjectName");
+          const name = (input.value || "").trim();
+          if(!name){ input.focus(); return false; }
+          createProject(name);
+        } }
+    ]
+  });
+}
+
+function createProject(name){
+  // Новый проект создаётся полностью пустым: без файлов и без участников
+  const p = {
+    id: uid("p"),
+    name: name,
+    createdAt: Date.now(),
+    lastModified: Date.now(),
+    members: []
+  };
+  state.projects.push(p);
+  addNotification("project", "notif.projectCreated");
+  saveState();
+  showToast(t("toast.projectCreated"), "success");
+  if(currentPage === "projects") refreshCurrentPage();
+  else navigate("project", p.id);
+}
+
+function confirmDeleteProject(projectId){
+  const p = state.projects.find(x => x.id === projectId);
+  if(!p) return;
+  openModal({
+    size: "sm",
+    icon: ic("trash"),
+    title: t("modal.deleteProjectTitle"),
+    subtitle: t("modal.deleteProjectDesc"),
+    actions: [
+      { label: t("modal.deleteProjectNo"), class: "btn-ghost", onClick: () => {} },
+      { label: t("modal.deleteProjectYes"), class: "btn-danger", onClick: () => {
+          state.projects = state.projects.filter(x => x.id !== projectId);
+          state.files.forEach(f => { if(f.projectId === projectId) f.projectId = null; });
+          saveState();
+          showToast(t("toast.projectDeleted"), "success");
+          navigate("projects");
+        } }
+    ]
+  });
+}
+
+/* ============================================================
+   16. PAGE: PROJECT DETAIL
+   ============================================================ */
+function renderProjectPage(projectId){
+  const p = state.projects.find(x => x.id === projectId);
+  if(!p){
+    return '<div class="page">' + emptyState("folder", t("projects.empty"), t("projects.emptySub"), t("projects.emptyBtn"), "create-project") + '</div>';
+  }
+  const files = state.files.filter(f => f.projectId === p.id).sort((a,b) => b.uploadedAt - a.uploadedAt);
+  const totalSize = files.reduce((s, f) => s + (f.size || 0), 0);
+
+  const filesSection = files.length
+    ? '<div class="list">' + files.map(f =>
+        '' +
+        '<div class="row" data-file-id="' + f.id + '">' +
+          '<div class="file-ic ' + fileKind(f.name, f.mime) + '">' + kindIcon(fileKind(f.name, f.mime)) + '</div>' +
+          '<div class="row-body">' +
+            '<div class="row-title">' + escapeHTML(f.name) + '</div>' +
+            '<div class="row-sub">' +
+              '<span>' + fmtSize(f.size) + '</span>' +
+              '<span>' + fmtDate(f.uploadedAt) + '</span>' +
+              '<span>' + escapeHTML(t("project.uploadedBy")) + ': ' + escapeHTML(f.uploader || "—") + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row-actions">' +
+            '<button type="button" class="btn btn-soft btn-sm" data-download title="' + escapeHTML(t("files.download")) + '">' + ic("download") + '</button>' +
+            '<button type="button" class="icon-btn sm" data-more aria-label="' + escapeHTML(t("common.edit")) + '">' + ic("more") + '</button>' +
+          '</div>' +
+        '</div>'
+      ).join("") + '</div>'
+    : emptyState("file", t("project.noFiles"), t("project.noFilesSub"), t("project.noFilesBtn"), "scroll-upload");
+
+  return '' +
+  '<div class="page">' +
+    '<button type="button" class="back-link" data-back>' + ic("arrowLeft") + '<span>' + escapeHTML(t("project.back")) + '</span></button>' +
+    '<div class="page-head center" style="margin-bottom:28px">' +
+      '<h1 class="page-title">' + escapeHTML(p.name) + '</h1>' +
+      '<p class="page-sub">' + escapeHTML(t("projects.created")) + ' ' + fmtDateShort(p.createdAt) + '</p>' +
+    '</div>' +
+
+    '<div id="projectUploadRoot">' + uploadBlockHTML() + '</div>' +
+
+    '<div class="stats-grid">' +
+      statCard("file",  String(files.length),                    t("project.statFiles")) +
+      statCard("drive", fmtSize(totalSize),                      t("project.statSize")) +
+      statCard("users", String(projectMembersCount(p)),          t("project.statMembers")) +
+      statCard("clock", fmtDate(p.lastModified || p.createdAt),  t("project.statModified")) +
+    '</div>' +
+
+    membersBlockHTML(p) +
+
+    '<h2 class="section-title">' + escapeHTML(t("project.filesTitle")) + '</h2>' +
+    filesSection +
+  '</div>';
+}
+
+function membersBlockHTML(p){
+  const members = Array.isArray(p.members) ? p.members : [];
+  let inner;
+  if(!members.length){
+    inner =
+      '<div class="members-empty">' +
+        '<div class="empty-ic">' + ic("users") + '</div>' +
+        '<div class="empty-title">' + escapeHTML(t("project.membersEmpty")) + '</div>' +
+        '<div style="font-size:12.5px;opacity:.75;margin-top:4px;margin-bottom:16px">' + escapeHTML(t("project.membersEmptySub")) + '</div>' +
+        '<button type="button" class="btn btn-primary btn-sm" data-add-member>' + ic("plus") + '<span>' + escapeHTML(t("project.addMember")) + '</span></button>' +
+      '</div>';
+  } else {
+    inner = '<div class="members-list">' + members.map(memberRowHTML).join("") + '</div>';
+  }
+  return '' +
+  '<div class="members-block">' +
+    '<div class="members-head">' +
+      '<h2 class="members-title">' + escapeHTML(t("project.membersTitle")) + '</h2>' +
+      '<button type="button" class="btn btn-primary btn-sm" data-add-member>' + ic("plus") + '<span>' + escapeHTML(t("project.addMember")) + '</span></button>' +
+    '</div>' +
+    inner +
+  '</div>';
+}
+
+function memberRowHTML(m){
+  const name = memberDisplayName(m);
+  const ini  = memberInitials(m);
+  const roleClass = m.role === "editor" ? "editor" : "viewer";
+  return '' +
+  '<div class="member-row">' +
+    '<div class="member-avatar">' + escapeHTML(ini) + '</div>' +
+    '<div class="member-body">' +
+      '<div class="member-name">' + escapeHTML(name) + '</div>' +
+      '<div class="member-sub">' +
+        '<span class="member-id">ID: ' + escapeHTML(m.id) + '</span>' +
+        '<span class="member-role ' + roleClass + '">' + escapeHTML(roleLabel(m.role)) + '</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function statCard(iconName, value, label){
+  return '' +
+  '<div class="stat-card">' +
+    '<div class="stat-ic">' + ic(iconName) + '</div>' +
+    '<div class="stat-value">' + escapeHTML(value) + '</div>' +
+    '<div class="stat-label">' + escapeHTML(label) + '</div>' +
+  '</div>';
+}
+
+function bindProjectPage(projectId){
+  const back = document.querySelector("#mainArea [data-back]");
+  if(back) back.addEventListener("click", () => navigate("projects"));
+
+  const emptyBtn = document.querySelector("#mainArea [data-empty-action='create-project']");
+  if(emptyBtn) emptyBtn.addEventListener("click", openCreateProject);
+
+  const uploadRoot = document.getElementById("projectUploadRoot");
+  if(uploadRoot){
+    bindUploader(uploadRoot, projectId, () => {
+      setTimeout(() => { if(currentPage === "project") navigate("project", projectId); }, 700);
+    });
+  }
+
+  document.querySelectorAll("#mainArea .row[data-file-id]").forEach(row => {
+    const id = row.dataset.fileId;
+    row.querySelector("[data-download]").addEventListener("click", () => downloadFile(id));
+    row.querySelector("[data-more]").addEventListener("click", e => {
+      e.stopPropagation();
+      openFileMenu(e.currentTarget, id);
+    });
+  });
+
+  // Пустое состояние файлов в проекте: кнопка скроллит к области загрузки наверху
+  const scrollBtn = document.querySelector("#mainArea [data-empty-action='scroll-upload']");
+  if(scrollBtn){
+    scrollBtn.addEventListener("click", () => {
+      mainArea.scrollTo({ top: 0, behavior: "smooth" });
+      // Даём пользователю лёгкую подсказку — мягко подсвечиваем dropzone
+      const dz = document.querySelector("#mainArea [data-dropzone]");
+      if(dz){
+        dz.style.transition = "box-shadow .3s ease, border-color .3s ease";
+        dz.style.borderColor = "var(--accent)";
+        dz.style.boxShadow = "0 0 0 5px var(--accent-soft)";
+        setTimeout(() => {
+          dz.style.borderColor = "";
+          dz.style.boxShadow = "";
+        }, 1400);
+      }
+    });
+  }
+
+  // Кнопки «Добавить участника» (в шапке блока и в пустом состоянии)
+  document.querySelectorAll("#mainArea [data-add-member]").forEach(btn => {
+    btn.addEventListener("click", () => openAddParticipantModal(projectId));
+  });
+}
+
+/* --- Модальное окно «Добавить участника» --- */
+function openAddParticipantModal(projectId){
+  let selectedRole = "editor";
+
+  openModal({
+    title: t("project.addMemberTitle"),
+    body:
+      '<div class="field">' +
+        '<label for="memberIdInput">' + escapeHTML(t("project.memberIdLabel")) + '</label>' +
+        '<input class="input" id="memberIdInput" type="text" inputmode="numeric" autocomplete="off" placeholder="' + escapeHTML(t("project.memberIdPlaceholder")) + '">' +
+      '</div>' +
+      '<div class="field" style="margin-bottom:6px">' +
+        '<label>' + escapeHTML(t("project.memberRoleLabel")) + '</label>' +
+        '<div class="role-options" data-role-options>' +
+          '<button type="button" class="role-option active" data-role="editor">' +
+            '<span class="role-radio"></span>' +
+            '<span class="role-option-info">' +
+              '<span class="role-option-title">' + escapeHTML(t("project.roleEditor")) + '</span>' +
+              '<span class="role-option-desc">' + escapeHTML(t("project.roleEditorDesc")) + '</span>' +
+            '</span>' +
+          '</button>' +
+          '<button type="button" class="role-option" data-role="viewer">' +
+            '<span class="role-radio"></span>' +
+            '<span class="role-option-info">' +
+              '<span class="role-option-title">' + escapeHTML(t("project.roleViewer")) + '</span>' +
+              '<span class="role-option-desc">' + escapeHTML(t("project.roleViewerDesc")) + '</span>' +
+            '</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>',
+    actions: [
+      { label: t("project.notAddMember"), class: "btn-ghost", onClick: () => {} },
+      { label: t("project.addMemberBtn"), class: "btn-primary", onClick: () => {
+          const input = document.getElementById("memberIdInput");
+          const idVal = (input.value || "").trim();
+          if(!idVal){
+            showToast(t("project.errEnterId"), "error");
+            input.focus();
+            return false;
+          }
+          if(!/^\d{4,}$/.test(idVal)){
+            showToast(t("project.errInvalidId"), "error");
+            input.focus();
+            return false;
+          }
+          const result = addMemberToProject(projectId, idVal, selectedRole);
+          if(!result.ok){
+            showToast(t(result.errorKey), "error");
+            return false;
+          }
+          showToast(t("project.memberAdded"), "success");
+          rerenderProject();
+        } }
+    ],
+    onMount: (box) => {
+      const opts = box.querySelector("[data-role-options]");
+      opts.querySelectorAll(".role-option").forEach(btn => {
+        btn.addEventListener("click", () => {
+          opts.querySelectorAll(".role-option").forEach(x => x.classList.remove("active"));
+          btn.classList.add("active");
+          selectedRole = btn.dataset.role;
+        });
+      });
+      const inp = box.querySelector("#memberIdInput");
+      inp.addEventListener("input", () => {
+        inp.value = inp.value.replace(/\D/g, "");
+      });
+      inp.addEventListener("keydown", e => {
+        if(e.key === "Enter"){
+          e.preventDefault();
+          const addBtn = box.querySelector("[data-modal-action='1']");
+          if(addBtn) addBtn.click();
+        }
+      });
+    }
+  });
+}
+
+function addMemberToProject(projectId, userId, role){
+  const p = state.projects.find(x => x.id === projectId);
+  if(!p) return { ok:false, errorKey:"project.errNotFound" };
+  if(!Array.isArray(p.members)) p.members = [];
+  if(p.members.some(m => m.id === userId)) return { ok:false, errorKey:"project.errDuplicate" };
+  if(!KNOWN_USERS[userId]) return { ok:false, errorKey:"project.errNotFound" };
+
+  p.members.push({
+    id: userId,
+    role: role === "viewer" ? "viewer" : "editor",
+    addedAt: Date.now()
+  });
+  p.lastModified = Date.now();
+  addNotification("member", "notif.newMember");
+  saveState();
+  return { ok:true };
+}
+
+function rerenderProject(){
+  if(currentPage !== "project" || !currentProjectId) return;
+  const scrollTop = mainArea.scrollTop;
+  mainArea.innerHTML = renderProjectPage(currentProjectId);
+  bindProjectPage(currentProjectId);
+  mainArea.scrollTop = scrollTop;
+}
+
+/* ============================================================
+   17. PAGE: PROFILE
+   ============================================================ */
+function renderProfilePage(){
+  const filesCount = state.files.length;
+  const projectsCount = state.projects.length;
+  const totalSize = state.files.reduce((s, f) => s + (f.size || 0), 0);
+  const freeSpace = Math.max(0, TOTAL_SPACE - totalSize);
+
+  const fullName = (state.user.first + " " + state.user.last).toLowerCase();
+
+  const avatarImage = state.user.avatarImage || "";
+  const coverImage  = state.user.coverImage  || "";
+
+  const avatarInner = avatarImage
+    ? '<img class="profile-avatar-img" src="' + avatarImage + '" alt="">'
+    : '<span class="profile-avatar-initials">' + escapeHTML(initials(state.user)) + '</span>';
+
+  const coverClass = "profile-cover" + (coverImage ? " has-image" : "");
+  const coverStyle = coverImage ? ' style="background-image:url(' + coverImage + ')"' : '';
+
+  return '' +
+  '<div class="page">' +
+    '<div class="page-head center">' +
+      '<h1 class="page-title">' + escapeHTML(t("profile.title")) + '</h1>' +
+    '</div>' +
+
+    '<div class="profile-card">' +
+      '<div class="' + coverClass + '" data-cover role="button" tabindex="0" aria-label="' + escapeHTML(t("profile.changeCover")) + '"' + coverStyle + '>' +
+        '<span class="profile-cover-overlay">' + escapeHTML(t("profile.coverHint")) + '</span>' +
+      '</div>' +
+      '<div class="profile-body">' +
+        '<div class="profile-user-row">' +
+          '<div class="profile-avatar" data-avatar role="button" tabindex="0" aria-label="' + escapeHTML(t("profile.changeAvatar")) + '">' +
+            avatarInner +
+            '<span class="profile-avatar-overlay">' + ic("camera") + '</span>' +
+          '</div>' +
+          '<div class="profile-user-info">' +
+            '<div class="profile-user-name">' + escapeHTML(fullName) + '</div>' +
+            '<div class="profile-user-id">' +
+              '<span>' + escapeHTML(t("profile.id")) + ': ' + escapeHTML(state.user.id) + '</span>' +
+              '<button type="button" class="copy-btn" data-copy-id>' + escapeHTML(t("profile.copyId")) + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="stats-grid">' +
+      statCard("file",   filesCount + " " + wordFiles(filesCount),      t("profile.statFiles")) +
+      statCard("folder", projectsCount + " " + wordProjects(projectsCount), t("profile.statProjects")) +
+      statCard("drive",  fmtSize(freeSpace), t("profile.statFree")) +
+      statCard("layers", fmtSize(totalSize), t("profile.statTotal")) +
+    '</div>' +
+  '</div>';
+}
+
+function bindProfilePage(){
+  const btn = document.querySelector("#mainArea [data-copy-id]");
+  if(btn){
+    btn.addEventListener("click", () => {
+      const text = state.user.id;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(
+          () => showToast(t("toast.copied"), "success"),
+          () => showToast(t("toast.copied"))
+        );
+      } else {
+        showToast(t("toast.copied"));
+      }
+    });
+  }
+
+  const avatarEl = document.querySelector("#mainArea [data-avatar]");
+  if(avatarEl){
+    const open = () => openAvatarMenu(avatarEl);
+    avatarEl.addEventListener("click", open);
+    avatarEl.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); }
+    });
+  }
+
+  const coverEl = document.querySelector("#mainArea [data-cover]");
+  if(coverEl){
+    const open = () => openCoverMenu(coverEl);
+    coverEl.addEventListener("click", open);
+    coverEl.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); }
+    });
+  }
+}
+
+function openAvatarMenu(anchor){
+  const has = !!state.user.avatarImage;
+  const items = [
+    { label: t("profile.changeAvatar"), icon: ic("camera"), onClick: () => {
+      const inp = document.getElementById("avatarFileInput");
+      inp.value = "";
+      inp.click();
+    }}
+  ];
+  if(has){
+    items.push({
+      label: t("profile.removeAvatar"),
+      icon: ic("trash"),
+      danger: true,
+      onClick: () => confirmRemoveAvatar()
+    });
+  }
+  openPopover(anchor, items);
+}
+
+function openCoverMenu(anchor){
+  const has = !!state.user.coverImage;
+  const items = [
+    { label: t("profile.changeCover"), icon: ic("camera"), onClick: () => {
+      const inp = document.getElementById("coverFileInput");
+      inp.value = "";
+      inp.click();
+    }}
+  ];
+  if(has){
+    items.push({
+      label: t("profile.removeCover"),
+      icon: ic("trash"),
+      danger: true,
+      onClick: () => confirmRemoveCover()
+    });
+  }
+  openPopover(anchor, items);
+}
+
+function confirmRemoveAvatar(){
+  openModal({
+    size: "sm",
+    icon: ic("trash"),
+    title: t("profile.confirmRemoveAvatar"),
+    actions: [
+      { label: t("profile.no"), class: "btn-ghost", onClick: () => {} },
+      { label: t("profile.yesRemove"), class: "btn-danger", onClick: () => {
+          state.user.avatarImage = "";
+          saveState();
+          renderUserChrome();
+          rerenderProfile();
+          showToast(t("profile.avatarRemoved"), "success");
+        } }
+    ]
+  });
+}
+function confirmRemoveCover(){
+  openModal({
+    size: "sm",
+    icon: ic("trash"),
+    title: t("profile.confirmRemoveCover"),
+    actions: [
+      { label: t("profile.no"), class: "btn-ghost", onClick: () => {} },
+      { label: t("profile.yesRemove"), class: "btn-danger", onClick: () => {
+          state.user.coverImage = "";
+          saveState();
+          rerenderProfile();
+          showToast(t("profile.coverRemoved"), "success");
+        } }
+    ]
+  });
+}
+
+function handleImageFile(file, kind){
+  if(!file) return;
+  if(!file.type || !file.type.startsWith("image/")){
+    showToast(t("profile.invalidImage"), "error");
+    return;
+  }
+  if(file.size > MAX_IMAGE_SIZE){
+    showToast(t("profile.imageTooLarge"), "error");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    if(kind === "avatar"){
+      state.user.avatarImage = dataUrl;
+      saveState();
+      renderUserChrome();
+      rerenderProfile();
+      showToast(t("profile.avatarUpdated"), "success");
+    } else {
+      state.user.coverImage = dataUrl;
+      saveState();
+      rerenderProfile();
+      showToast(t("profile.coverUpdated"), "success");
+    }
+  };
+  reader.onerror = () => showToast(t("profile.uploadFailed"), "error");
+  reader.readAsDataURL(file);
+}
+
+function rerenderProfile(){
+  if(currentPage !== "profile") return;
+  const scrollTop = mainArea.scrollTop;
+  mainArea.innerHTML = renderProfilePage();
+  bindProfilePage();
+  mainArea.scrollTop = scrollTop;
+}
+
+function initProfileImageInputs(){
+  const avatarInput = document.getElementById("avatarFileInput");
+  const coverInput  = document.getElementById("coverFileInput");
+
+  avatarInput.addEventListener("change", () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if(!file){ return; }
+    handleImageFile(file, "avatar");
+    avatarInput.value = "";
+  });
+  coverInput.addEventListener("change", () => {
+    const file = coverInput.files && coverInput.files[0];
+    if(!file){ return; }
+    handleImageFile(file, "cover");
+    coverInput.value = "";
+  });
+}
+
+/* ============================================================
+   18. PAGE: SETTINGS
+   ============================================================ */
+function renderSettingsPage(){
+  const s = state.settings;
+  return '' +
+  '<div class="page">' +
+    '<div class="page-head center">' +
+      '<h1 class="page-title">' + escapeHTML(t("settings.title")) + '</h1>' +
+      '<p class="page-sub">' + escapeHTML(t("settings.sub")) + '</p>' +
+    '</div>' +
+
+    '<div class="settings-card">' +
+      '<div class="setting-row">' +
+        '<div class="setting-info">' +
+          '<div class="setting-title">' + escapeHTML(t("settings.theme")) + '</div>' +
+          '<div class="setting-desc">' + escapeHTML(t("settings.themeDesc")) + '</div>' +
+        '</div>' +
+        '<div class="segmented" data-theme-seg>' +
+          '<button type="button" data-theme-val="light" class="' + (s.theme === "light" ? "active" : "") + '">' + escapeHTML(t("settings.themeLight")) + '</button>' +
+          '<button type="button" data-theme-val="dark" class="' + (s.theme === "dark" ? "active" : "") + '">' + escapeHTML(t("settings.themeDark")) + '</button>' +
+          '<button type="button" data-theme-val="system" class="' + (s.theme === "system" ? "active" : "") + '">' + escapeHTML(t("settings.themeSystem")) + '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="setting-row">' +
+        '<div class="setting-info">' +
+          '<div class="setting-title">' + escapeHTML(t("settings.lang")) + '</div>' +
+          '<div class="setting-desc">' + escapeHTML(t("settings.langDesc")) + '</div>' +
+        '</div>' +
+        '<div class="segmented" data-lang-seg>' +
+          '<button type="button" data-lang-val="ru" class="' + (s.lang === "ru" ? "active" : "") + '">Русский</button>' +
+          '<button type="button" data-lang-val="en" class="' + (s.lang === "en" ? "active" : "") + '">English</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="setting-row">' +
+        '<div class="setting-info">' +
+          '<div class="setting-title">' + escapeHTML(t("settings.logout")) + '</div>' +
+          '<div class="setting-desc">' + escapeHTML(t("settings.logoutDesc")) + '</div>' +
+        '</div>' +
+        '<button type="button" class="btn btn-danger-soft" data-logout>' + ic("logout") + '<span>' + escapeHTML(t("settings.logoutBtn")) + '</span></button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">' +
+      '<button type="button" class="btn btn-ghost" data-settings-discard>' + escapeHTML(t("settings.discard")) + '</button>' +
+      '<button type="button" class="btn btn-primary" data-settings-save>' + escapeHTML(t("settings.save")) + '</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function bindSettingsPage(){
+  const draft = { theme: state.settings.theme, lang: state.settings.lang };
+
+  const themeSeg = document.querySelector("#mainArea [data-theme-seg]");
+  themeSeg.querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => {
+      themeSeg.querySelectorAll("button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      draft.theme = b.dataset.themeVal;
+      const prev = state.settings.theme;
+      state.settings.theme = draft.theme;
+      applyTheme();
+      state.settings.theme = prev;
+    });
+  });
+
+  const langSeg = document.querySelector("#mainArea [data-lang-seg]");
+  langSeg.querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => {
+      langSeg.querySelectorAll("button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      draft.lang = b.dataset.langVal;
+    });
+  });
+
+  document.querySelector("#mainArea [data-logout]").addEventListener("click", logout);
+
+  document.querySelector("#mainArea [data-settings-save]").addEventListener("click", () => {
+    state.settings.theme = draft.theme;
+    state.settings.lang = draft.lang;
+    saveState();
+    applyTheme();
+    applyI18n();
+    renderNotifPanel();
+    showToast(t("toast.saved"), "success");
+    navigate("settings");
+  });
+
+  document.querySelector("#mainArea [data-settings-discard]").addEventListener("click", () => {
+    applyTheme();
+    navigate("settings");
+  });
+}
+
+/* ============================================================
+   19. NOTIFICATIONS
+   ============================================================ */
+const notifPanel = document.getElementById("notifPanel");
+const bellBtn = document.getElementById("bellBtn");
+
+function addNotification(type, textKey){
+  state.notifications.unshift({
+    id: uid("n"),
+    type: type,
+    text: textKey,
+    time: Date.now(),
+    read: false
+  });
+  saveState();
+  renderNotifPanel();
+}
+function unreadCount(){
+  return state.notifications.filter(n => !n.read).length;
+}
+function renderBell(){
+  const dot = document.getElementById("bellDot");
+  dot.hidden = unreadCount() === 0;
+}
+function renderNotifPanel(){
+  const list = state.notifications;
+  notifPanel.innerHTML =
+    '<div class="notif-head">' +
+      '<h3>' + escapeHTML(t("notif.title")) + '</h3>' +
+      '<button type="button" class="icon-btn sm" data-close-notif aria-label="' + escapeHTML(t("common.close")) + '">' + ic("x") + '</button>' +
+    '</div>' +
+    (list.length
+      ? '<div class="notif-actions">' +
+          '<button type="button" class="btn btn-soft btn-sm" data-read-all>' + ic("check") + '<span>' + escapeHTML(t("notif.readAll")) + '</span></button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-clear-all>' + ic("trash") + '<span>' + escapeHTML(t("notif.clearAll")) + '</span></button>' +
+        '</div>' +
+        '<div class="notif-list">' + list.map(n => {
+          const iconName = n.type === "upload" ? "upload" : n.type === "access" ? "share" : n.type === "edit" ? "edit" : "users";
+          return '' +
+          '<div class="notif-item ' + (n.read ? "" : "unread") + '">' +
+            '<div class="notif-ic">' + ic(iconName) + '</div>' +
+            '<div class="notif-body">' +
+              '<div class="notif-text">' + escapeHTML(t(n.text)) + '</div>' +
+              '<div class="notif-time">' + fmtDate(n.time) + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join("") + '</div>'
+      : '<div style="padding:48px 24px;text-align:center">' +
+          '<div class="empty-ic" style="margin-bottom:16px">' + ic("bell") + '</div>' +
+          '<div class="empty-title">' + escapeHTML(t("notif.empty")) + '</div>' +
+        '</div>');
+
+  const closeBtn = notifPanel.querySelector("[data-close-notif]");
+  if(closeBtn) closeBtn.addEventListener("click", closeNotifPanel);
+
+  const readAll = notifPanel.querySelector("[data-read-all]");
+  if(readAll) readAll.addEventListener("click", () => {
+    state.notifications.forEach(n => n.read = true);
+    saveState();
+    renderNotifPanel();
+    renderBell();
+    showToast(t("toast.allRead"), "success");
+  });
+
+  const clearAll = notifPanel.querySelector("[data-clear-all]");
+  if(clearAll) clearAll.addEventListener("click", () => {
+    state.notifications = [];
+    saveState();
+    renderNotifPanel();
+    renderBell();
+    showToast(t("toast.allCleared"), "success");
+  });
+
+  renderBell();
+}
+function openNotifPanel(){
+  renderNotifPanel();
+  notifPanel.hidden = false;
+  notifPanel.style.pointerEvents = "auto";
+  bellBtn.setAttribute("aria-expanded", "true");
+  setTimeout(() => document.addEventListener("mousedown", outsideNotif, true), 0);
+}
+function closeNotifPanel(){
+  if(notifPanel.hidden) return;
+  notifPanel.hidden = true;
+  notifPanel.style.pointerEvents = "none";
+  bellBtn.setAttribute("aria-expanded", "false");
+  document.removeEventListener("mousedown", outsideNotif, true);
+}
+function outsideNotif(e){
+  if(!notifPanel.contains(e.target) && !bellBtn.contains(e.target)){
+    closeNotifPanel();
+  }
+}
+function initNotifications(){
+  bellBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    if(notifPanel.hidden) openNotifPanel(); else closeNotifPanel();
+  });
+}
+
+/* ============================================================
+   20. EMPTY STATE HELPER
+   ============================================================ */
+function emptyState(iconName, title, sub, btnLabel, action){
+  // Иконка для кнопки: upload/scroll-upload → upload; иначе plus
+  const btnIcon = (action === "upload" || action === "scroll-upload") ? "upload" : "plus";
+  return '' +
+  '<div class="empty">' +
+    '<div class="empty-ic">' + ic(iconName) + '</div>' +
+    '<div class="empty-title">' + escapeHTML(title) + '</div>' +
+    (sub ? '<div class="empty-sub">' + escapeHTML(sub) + '</div>' : '<div style="height:6px"></div>') +
+    (btnLabel ? '<button type="button" class="btn btn-primary" data-empty-action="' + action + '">' + ic(btnIcon) + '<span>' + escapeHTML(btnLabel) + '</span></button>' : '') +
+  '</div>';
+}
+
+/* ============================================================
+   21. REFRESH
+   ============================================================ */
+function refreshCurrentPage(){
+  if(currentPage === "project") navigate("project", currentProjectId);
+  else navigate(currentPage);
+}
+
+/* ============================================================
+   22. INIT
+   ============================================================ */
+function initApp(){
+  applyTheme();
+  applyI18n();
+
+  initAuth();
+  initNavigation();
+  initNotifications();
+  initProfileImageInputs();
+
+  modalBackdrop.style.pointerEvents = "none";
+  notifPanel.style.pointerEvents   = "none";
+  sidebarScrim.style.pointerEvents = "none";
+  sidebarScrim.hidden = true;
+
+  const authed = (function(){
+    try { return localStorage.getItem(AUTH_KEY) === "true"; } catch(e){ return false; }
+  })();
+
+  if(authed){
+    setAppState("app");
+    openAppContent();
+  } else {
+    setAppState("auth");
+    showAuthView("register");
+  }
+
+  renderBell();
+}
+
+document.addEventListener("DOMContentLoaded", initApp);
+</script>
+</body>
+</html>
