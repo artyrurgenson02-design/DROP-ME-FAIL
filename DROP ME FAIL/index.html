@@ -1036,7 +1036,7 @@ html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
       </div>
     </div>
 
-    <div class="auth-foot" data-i18n="auth.foot">Frontend-прототип · Демонстрационная авторизация</div>
+    <div class="auth-foot" data-i18n="auth.foot">Secure sign-in with Yandex ID</div>
   </div>
 </div>
 
@@ -1147,21 +1147,7 @@ const ICONS = {
 };
 function ic(name){ return ICONS[name] || ICONS.file; }
 
-/* ============================================================
-   2. DEMO USER DIRECTORY
-   Имитация серверного реестра пользователей для проверки ID
-   при добавлении участника. НЕ является данными аккаунта.
-   ============================================================ */
-const KNOWN_USERS = {
-  "123456789": { name:"Александр Иванов", initials:"АИ" },
-  "987654321": { name:"Иван Петров",     initials:"ИП" },
-  "555666777": { name:"Мария Смирнова",  initials:"МС" },
-  "111222333": { name:"Пётр Сидоров",    initials:"ПС" },
-  "444555666": { name:"Елена Кузнецова", initials:"ЕК" },
-  "222333444": { name:"Дмитрий Орлов",   initials:"ДО" },
-  "666777888": { name:"Ольга Белова",    initials:"ОБ" },
-  "999888777": { name:"Николай Волков",  initials:"НВ" }
-};
+const KNOWN_USERS = Object.create(null);
 
 /* ============================================================
    3. I18N
@@ -1187,12 +1173,7 @@ const I18N = {
     "auth.toLoginBtn":"Войти",
     "auth.toRegister":"Нет аккаунта?",
     "auth.toRegisterBtn":"Зарегистрироваться",
-    "auth.foot":"Frontend-прототип · Демонстрационная авторизация",
-
-    "toast.yandexRegister":"Демонстрационная регистрация через Яндекс",
-    "toast.googleRegister":"Демонстрационная регистрация через Google",
-    "toast.yandexLogin":"Демонстрационная авторизация через Яндекс",
-    "toast.googleLogin":"Демонстрационная авторизация через Google",
+    "auth.foot":"\u0412\u0445\u043e\u0434 \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441 ID",
     "toast.saved":"Изменения сохранены",
     "toast.deleted":"Файл удалён",
     "toast.projectCreated":"Проект создан",
@@ -1330,7 +1311,7 @@ const I18N = {
 
     "modal.shareTitle":"Выдать доступ",
     "modal.shareLabel":"Введите ID пользователя",
-    "modal.sharePlaceholder":"Например: 123456789",
+    "modal.sharePlaceholder":"\u0412\u0432\u0435\u0434\u0438\u0442\u0435 ID \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f",
     "modal.shareRole":"Роль",
     "modal.roleEditor":"Редактор",
     "modal.roleEditorDesc":"Пользователь с этой ролью может редактировать доступный ему объект в рамках предусмотренных возможностей интерфейса.",
@@ -1380,12 +1361,7 @@ const I18N = {
     "auth.toLoginBtn":"Sign in",
     "auth.toRegister":"No account?",
     "auth.toRegisterBtn":"Sign up",
-    "auth.foot":"Frontend prototype · Demo authorization",
-
-    "toast.yandexRegister":"Demo sign-up via Yandex",
-    "toast.googleRegister":"Demo sign-up via Google",
-    "toast.yandexLogin":"Demo sign-in via Yandex",
-    "toast.googleLogin":"Demo sign-in via Google",
+    "auth.foot":"Secure sign-in with Yandex ID",
     "toast.saved":"Changes saved",
     "toast.deleted":"File deleted",
     "toast.projectCreated":"Project created",
@@ -1523,7 +1499,7 @@ const I18N = {
 
     "modal.shareTitle":"Grant access",
     "modal.shareLabel":"Enter the user ID",
-    "modal.sharePlaceholder":"For example: 123456789",
+    "modal.sharePlaceholder":"Enter Yandex user ID",
     "modal.shareRole":"Role",
     "modal.roleEditor":"Editor",
     "modal.roleEditorDesc":"A user with this role can edit the object available to them within the capabilities provided by the interface.",
@@ -1561,7 +1537,6 @@ const I18N = {
 /* Ключ версии поднят до v2: старые демо-данные из v1 больше не читаются,
    чтобы при первом запуске новой версии аккаунт был полностью пустым. */
 const STORAGE_KEY = "odmf_state_v2";
-const AUTH_KEY    = "ouraAuthenticated";
 const TOTAL_SPACE = 50 * 1024 * 1024 * 1024; // 50 ГБ — квота
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;      // 5 МБ
 
@@ -1576,13 +1551,7 @@ function uid(prefix){
  */
 function defaultState(){
   return {
-    user: {
-      first: "Александр",
-      last:  "Иванов",
-      id:    "123456789",
-      avatarImage: "",
-      coverImage:  ""
-    },
+    user: { first:"", last:"", id:"", avatarImage:"", coverImage:"" },
     settings: { theme:"light", lang:"ru" },
     files: [],
     projects: [],
@@ -1896,19 +1865,13 @@ function initAuth(){
     btn.addEventListener("click", () => {
       const provider = btn.dataset.oauth;
       const mode = btn.dataset.oauthMode;
-      let key;
-      if(mode === "register") key = provider === "yandex" ? "toast.yandexRegister" : "toast.googleRegister";
-      else                     key = provider === "yandex" ? "toast.yandexLogin" : "toast.googleLogin";
-      showToast(t(key));
-      setTimeout(completeAuth, 800);
+      if(provider === "yandex"){
+        window.location.assign("/auth/yandex?mode=" + encodeURIComponent(mode));
+        return;
+      }
+      showToast(state.settings.lang === "en" ? "Google sign-in is not connected yet." : "\u0412\u0445\u043e\u0434 \u0447\u0435\u0440\u0435\u0437 Google \u043f\u043e\u043a\u0430 \u043d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d.");
     });
   });
-}
-
-function completeAuth(){
-  try { localStorage.setItem(AUTH_KEY, "true"); } catch(e){}
-  setAppState("app");
-  openAppContent();
 }
 
 /* ============================================================
@@ -1949,11 +1912,16 @@ function openAppContent(){
   navigate("files"); // Новая точка входа: показываем пустые «Мои загрузки»
   renderNotifPanel();
 }
-function logout(){
-  try { localStorage.removeItem(AUTH_KEY); } catch(e){}
-  setAppState("auth");
-  showAuthView("login");
-  showToast(t("toast.loggedOut"));
+async function logout(){
+  try {
+    const response = await fetch("/auth/logout", { method:"POST", credentials:"same-origin" });
+    if(!response.ok) throw new Error("Logout request failed");
+    setAppState("auth");
+    showAuthView("login");
+    showToast(t("toast.loggedOut"));
+  } catch(error){
+    showToast(state.settings.lang === "en" ? "Could not sign out. Please try again." : "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0432\u044b\u0439\u0442\u0438. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.");
+  }
 }
 
 function renderUserChrome(){
@@ -3217,7 +3185,7 @@ function refreshCurrentPage(){
 /* ============================================================
    22. INIT
    ============================================================ */
-function initApp(){
+async function initApp(){
   applyTheme();
   applyI18n();
 
@@ -3231,18 +3199,37 @@ function initApp(){
   sidebarScrim.style.pointerEvents = "none";
   sidebarScrim.hidden = true;
 
-  const authed = (function(){
-    try { return localStorage.getItem(AUTH_KEY) === "true"; } catch(e){ return false; }
-  })();
-
-  if(authed){
-    setAppState("app");
-    openAppContent();
-  } else {
-    setAppState("auth");
-    showAuthView("register");
+  setAppState("auth");
+  showAuthView("register");
+  try {
+    const response = await fetch("/api/me", { credentials:"same-origin", headers:{ Accept:"application/json" } });
+    if(!response.ok) throw new Error("Session lookup failed");
+    const result = await response.json();
+    if(result.user){
+      const user = result.user;
+      state.user.first = user.firstName || user.name || "";
+      state.user.last = user.lastName || "";
+      state.user.id = user.yandexId;
+      state.user.email = user.email || "";
+      state.user.avatarImage = user.avatarUrl || "";
+      setAppState("app");
+      openAppContent();
+    }
+  } catch(error){
+    showToast(state.settings.lang === "en" ? "Could not check your sign-in session." : "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c \u0441\u0435\u0441\u0441\u0438\u044e \u0432\u0445\u043e\u0434\u0430.");
   }
 
+  const authError = new URLSearchParams(window.location.search).get("auth_error");
+  if(authError){
+    const messages = {
+      account_not_found: state.settings.lang === "en" ? "No account found. Sign up with Yandex first." : "\u0410\u043a\u043a\u0430\u0443\u043d\u0442 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d. \u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u0443\u0439\u0442\u0435\u0441\u044c \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441.",
+      cancelled: state.settings.lang === "en" ? "Yandex sign-in was cancelled." : "\u0412\u0445\u043e\u0434 \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441 \u043e\u0442\u043c\u0435\u043d\u0451\u043d.",
+      invalid_state: state.settings.lang === "en" ? "The sign-in request expired. Please try again." : "\u0421\u0440\u043e\u043a \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044f \u0437\u0430\u043f\u0440\u043e\u0441\u0430 \u0432\u0445\u043e\u0434\u0430 \u0438\u0441\u0442\u0451\u043a. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.",
+      oauth_failed: state.settings.lang === "en" ? "Yandex sign-in failed. Please try again." : "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0432\u043e\u0439\u0442\u0438 \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."
+    };
+    showToast(messages[authError] || messages.oauth_failed);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
   renderBell();
 }
 
