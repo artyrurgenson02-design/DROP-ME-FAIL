@@ -89,6 +89,18 @@ app.use(session({
 function publicUser(row) {
   return { id: String(row.id), yandexId: row.yandex_id, login: row.login || "", firstName: row.first_name || "", lastName: row.last_name || "", name: row.display_name || row.login || "Yandex user", email: row.email || "", avatarUrl: row.avatar_url || "" };
 }
+function notificationDto(row) {
+  return {
+    id: String(row.id), type: row.type, projectId: row.project_id == null ? null : String(row.project_id),
+    actorUserId: row.actor_user_id == null ? null : String(row.actor_user_id), actorName: row.actor_name || "",
+    title: row.title, message: row.message, isRead: Boolean(row.is_read), createdAt: row.created_at
+  };
+}
+function isValidBigintId(value) {
+  if (typeof value !== "string" || !/^\d+$/.test(value)) return false;
+  const canonical = value.replace(/^0+/, "");
+  return Boolean(canonical) && (canonical.length < 19 || (canonical.length === 19 && canonical <= "9223372036854775807"));
+}
 function redirectWithAuthError(res, error) { return res.redirect(frontendUrl + "/?auth_error=" + encodeURIComponent(error)); }
 function asyncRoute(fn) { return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next); }
 function requireAuth(req, res, next) { if (!req.session.userId) return res.status(401).json({ error: "authentication_required" }); next(); }
@@ -162,8 +174,55 @@ app.get("/api/me", asyncRoute(async (req, res) => {
   if (!r.rowCount) { req.session.destroy(() => {}); return res.json({ user: null }); }
   res.json({ user: publicUser(r.rows[0]) });
 }));
+app.get("/api/notifications", requireAuth, asyncRoute(async (req, res) => {
+  const r = await pool.query(`SELECT n.id,n.type,n.project_id,n.actor_user_id,n.title,n.message,n.is_read,n.created_at,
+    COALESCE(NULLIF(actor.display_name,''), NULLIF(CONCAT_WS(' ',NULLIF(actor.first_name,''),NULLIF(actor.last_name,'')),''), NULLIF(actor.login,''),'') AS actor_name
+    FROM notifications n LEFT JOIN users actor ON actor.id=n.actor_user_id
+    WHERE n.user_id=$1 ORDER BY n.created_at DESC,n.id DESC`, [req.session.userId]);
+  const notifications = r.rows.map(notificationDto);
+  res.json({ notifications, unreadCount: notifications.filter(notification => !notification.isRead).length });
+}));
+app.post("/api/notifications", requireAuth, asyncRoute(async (req, res) => {
+  const body = req.body || {};
+  const type = typeof body.type === "string" ? body.type : "";
+  const title = typeof body.title === "string" ? body.title.trim() : "";
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  const requestedProjectId = body.projectId == null ? "" : String(body.projectId).trim();
+  const projectId = requestedProjectId || null;
+  if (!["upload", "project"].includes(type) || !title || title.length > 200 || message.length > 1000) {
+    return res.status(400).json({ error: "invalid_notification" });
+  }
+  if (projectId && (!isValidBigintId(projectId) || !(await canAccessProject(projectId, req.session.userId)))) {
+    return res.status(404).json({ error: "project_not_found" });
+  }
+  const r = await pool.query("INSERT INTO notifications(user_id,type,project_id,actor_user_id,title,message) VALUES($1,$2,$3,$4,$5,$6) RETURNING id", [req.session.userId, type, projectId, req.session.userId, title, message]);
+  const saved = await pool.query(`SELECT n.id,n.type,n.project_id,n.actor_user_id,n.title,n.message,n.is_read,n.created_at,
+    COALESCE(NULLIF(actor.display_name,''), NULLIF(CONCAT_WS(' ',NULLIF(actor.first_name,''),NULLIF(actor.last_name,'')),''), NULLIF(actor.login,''),'') AS actor_name
+    FROM notifications n LEFT JOIN users actor ON actor.id=n.actor_user_id WHERE n.id=$1 AND n.user_id=$2`, [r.rows[0].id, req.session.userId]);
+  res.status(201).json({ notification: notificationDto(saved.rows[0]) });
+}));
+app.post("/api/notifications/read-all", requireAuth, asyncRoute(async (req, res) => {
+  await pool.query("UPDATE notifications SET is_read=TRUE WHERE user_id=$1 AND is_read=FALSE", [req.session.userId]);
+  res.status(204).end();
+}));
+app.post("/api/notifications/:id/read", requireAuth, asyncRoute(async (req, res) => {
+  if (!isValidBigintId(req.params.id)) return res.status(404).json({ error: "notification_not_found" });
+  const r = await pool.query("UPDATE notifications SET is_read=TRUE WHERE id=$1 AND user_id=$2 RETURNING id", [req.params.id, req.session.userId]);
+  if (!r.rowCount) return res.status(404).json({ error: "notification_not_found" });
+  res.status(204).end();
+}));
+app.delete("/api/notifications", requireAuth, asyncRoute(async (req, res) => {
+  await pool.query("DELETE FROM notifications WHERE user_id=$1", [req.session.userId]);
+  res.status(204).end();
+}));
+app.delete("/api/notifications/:id", requireAuth, asyncRoute(async (req, res) => {
+  if (!isValidBigintId(req.params.id)) return res.status(404).json({ error: "notification_not_found" });
+  const r = await pool.query("DELETE FROM notifications WHERE id=$1 AND user_id=$2 RETURNING id", [req.params.id, req.session.userId]);
+  if (!r.rowCount) return res.status(404).json({ error: "notification_not_found" });
+  res.status(204).end();
+}));
 app.get("/api/projects", requireAuth, asyncRoute(async (req, res) => {
-  const r = await pool.query(`SELECT p.*, (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id=p.id) AS members_count FROM projects p WHERE p.owner_id=$1 OR EXISTS (SELECT 1 FROM project_members pm WHERE pm.project_id=p.id AND pm.user_id=$1) ORDER BY p.updated_at DESC`, [req.session.userId]);
+  const r = await pool.query(`SELECT p.*, (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id=p.id AND pm.user_id<>p.owner_id) AS members_count FROM projects p WHERE p.owner_id=$1 OR EXISTS (SELECT 1 FROM project_members pm WHERE pm.project_id=p.id AND pm.user_id=$1) ORDER BY p.updated_at DESC`, [req.session.userId]);
   res.json({ projects: r.rows.map(projectDto) });
 }));
 app.post("/api/projects", requireAuth, asyncRoute(async (req, res) => {
@@ -180,24 +239,67 @@ app.delete("/api/projects/:id", requireAuth, asyncRoute(async (req, res) => {
 app.get("/api/projects/:id/members", requireAuth, asyncRoute(async (req, res) => {
   const access = await canAccessProject(req.params.id, req.session.userId);
   if (!access) return res.status(404).json({ error: "project_not_found" });
-  const r = await pool.query("SELECT u.id,u.yandex_id,u.login,u.first_name,u.last_name,u.display_name,u.avatar_url,pm.role,pm.created_at FROM project_members pm JOIN users u ON u.id=pm.user_id WHERE pm.project_id=$1 ORDER BY pm.created_at", [req.params.id]);
-  res.json({ members: r.rows.map(x => ({ id: String(x.id), yandexId: x.yandex_id, name: x.display_name || x.login || "Yandex user", initials: ((x.first_name || "")[0] || "") + ((x.last_name || "")[0] || ""), role: x.role, createdAt: x.created_at })) });
+  const ownerResult = await pool.query(`SELECT u.id,u.first_name,u.last_name,u.display_name,u.login,u.avatar_url,p.created_at
+    FROM projects p JOIN users u ON u.id=p.owner_id WHERE p.id=$1`, [req.params.id]);
+  if (!ownerResult.rowCount) return res.status(404).json({ error: "project_not_found" });
+  const owner = ownerResult.rows[0];
+  const membersResult = await pool.query(`SELECT u.id,u.first_name,u.last_name,u.display_name,u.login,u.avatar_url,pm.role,pm.created_at
+    FROM project_members pm JOIN users u ON u.id=pm.user_id
+    WHERE pm.project_id=$1 AND pm.user_id<>$2 ORDER BY pm.created_at,pm.user_id`, [req.params.id, owner.id]);
+  const memberRows = [{ ...owner, role: "owner" }, ...membersResult.rows];
+  res.json({ members: memberRows.map(x => ({
+    id: String(x.id), name: x.first_name || x.display_name || x.login || "Yandex user", surname: x.last_name || "",
+    firstName: x.first_name || "", lastName: x.last_name || "", avatarUrl: x.avatar_url || "",
+    initials: ((x.first_name || "")[0] || "") + ((x.last_name || "")[0] || ""), role: x.role, createdAt: x.created_at
+  })) });
 }));
 app.post("/api/projects/:id/members", requireAuth, asyncRoute(async (req, res) => {
-  const own = await pool.query("SELECT id FROM projects WHERE id=$1 AND owner_id=$2", [req.params.id, req.session.userId]);
-  if (!own.rowCount) return res.status(404).json({ error: "project_not_found" });
-  const userId = req.body && typeof req.body.userId === "string" ? req.body.userId.trim() : "";
+  const body = req.body || {};
+  const userId = typeof body.userId === "string" ? body.userId.trim() : "";
   const canonicalUserId = userId.replace(/^0+/, "");
   if (!/^\d+$/.test(userId) || !canonicalUserId || canonicalUserId.length > 19 || (canonicalUserId.length === 19 && canonicalUserId > "9223372036854775807")) {
     return res.status(400).json({ error: "invalid_user_id" });
   }
-  const user = await pool.query("SELECT id FROM users WHERE id=$1", [userId]);
-  if (!user.rowCount) return res.status(404).json({ error: "user_not_found" });
-  if (String(user.rows[0].id) === String(req.session.userId)) return res.status(400).json({ error: "owner_already_has_access" });
-  const role = req.body.role === "viewer" ? "viewer" : "editor";
-  const r = await pool.query("INSERT INTO project_members(project_id,user_id,role) VALUES($1,$2,$3) ON CONFLICT(project_id,user_id) DO UPDATE SET role=EXCLUDED.role RETURNING project_id,user_id,role,created_at", [req.params.id, user.rows[0].id, role]);
-  await pool.query("UPDATE projects SET updated_at=NOW() WHERE id=$1", [req.params.id]);
-  res.status(201).json({ member: { id: String(r.rows[0].user_id), role: r.rows[0].role, createdAt: r.rows[0].created_at } });
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const projectResult = await client.query(`SELECT p.id,p.name,p.owner_id,
+      COALESCE(NULLIF(u.display_name,''),NULLIF(CONCAT_WS(' ',NULLIF(u.first_name,''),NULLIF(u.last_name,'')),''),NULLIF(u.login,''),'Owner') AS actor_name
+      FROM projects p JOIN users u ON u.id=p.owner_id WHERE p.id=$1 AND p.owner_id=$2`, [req.params.id, req.session.userId]);
+    if (!projectResult.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "project_not_found" });
+    }
+    const project = projectResult.rows[0];
+    const user = await client.query("SELECT id FROM users WHERE id=$1", [userId]);
+    if (!user.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "user_not_found" });
+    }
+    if (String(user.rows[0].id) === String(req.session.userId)) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({ error: "owner_already_has_access" });
+    }
+    const role = body.role === "viewer" ? "viewer" : "editor";
+    let membership = await client.query("INSERT INTO project_members(project_id,user_id,role) VALUES($1,$2,$3) ON CONFLICT(project_id,user_id) DO NOTHING RETURNING project_id,user_id,role,created_at", [project.id, user.rows[0].id, role]);
+    const newlyAdded = membership.rowCount > 0;
+    if (!newlyAdded) {
+      membership = await client.query("UPDATE project_members SET role=$3 WHERE project_id=$1 AND user_id=$2 RETURNING project_id,user_id,role,created_at", [project.id, user.rows[0].id, role]);
+      if (!membership.rowCount) throw new Error("Project membership changed during update");
+    }
+    await client.query("UPDATE projects SET updated_at=NOW() WHERE id=$1", [project.id]);
+    if (newlyAdded && String(user.rows[0].id) !== String(project.owner_id)) {
+      const message = project.actor_name + " added you to the project \"" + project.name + "\".";
+      await client.query("INSERT INTO notifications(user_id,type,project_id,actor_user_id,title,message) VALUES($1,'project_member_added',$2,$3,$4,$5)", [user.rows[0].id, project.id, project.owner_id, project.name, message]);
+    }
+    await client.query("COMMIT");
+    res.status(201).json({ member: { id: String(membership.rows[0].user_id), role: membership.rows[0].role, createdAt: membership.rows[0].created_at } });
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  } finally {
+    client.release();
+  }
 }));
 app.delete("/api/projects/:id/members/:userId", requireAuth, asyncRoute(async (req, res) => {
   const own = await pool.query("DELETE FROM project_members pm USING projects p WHERE pm.project_id=p.id AND pm.project_id=$1 AND pm.user_id=$2 AND p.owner_id=$3 RETURNING pm.user_id", [req.params.id, req.params.userId, req.session.userId]);
@@ -280,10 +382,19 @@ async function start() {
       project_id BIGINT REFERENCES projects(id) ON DELETE SET NULL, name TEXT NOT NULL, size BIGINT NOT NULL CHECK(size >= 0),
       mime TEXT NOT NULL, storage_key TEXT NOT NULL UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS notifications (
+      id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type TEXT NOT NULL, project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+      actor_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+      title TEXT NOT NULL, message TEXT NOT NULL, is_read BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
     CREATE INDEX IF NOT EXISTS projects_owner_id_idx ON projects(owner_id);
     CREATE INDEX IF NOT EXISTS project_members_user_id_idx ON project_members(user_id);
     CREATE INDEX IF NOT EXISTS files_owner_id_idx ON files(owner_id);
     CREATE INDEX IF NOT EXISTS files_project_id_idx ON files(project_id);
+    CREATE INDEX IF NOT EXISTS notifications_user_created_idx ON notifications(user_id,created_at DESC,id DESC);
+    CREATE INDEX IF NOT EXISTS notifications_project_id_idx ON notifications(project_id);
   `);
   startupStage = "HTTP server startup";
   app.listen(port, "0.0.0.0", () => console.log(`oura drop me fail API listening on port ${port}; frontend=${frontendUrl}; api=${apiBaseUrl || "unset"}`));

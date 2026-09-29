@@ -576,6 +576,7 @@ html[data-theme="dark"] .file-ic.vid{background:#211a3a;color:#a68bff;}
   white-space:nowrap;
 }
 .member-role.editor{background:var(--accent-soft);color:var(--accent);}
+.member-role.owner{background:var(--accent-soft);color:var(--accent);}
 .member-role.viewer{background:var(--surface-hover);color:var(--text-muted);}
 html[data-theme="dark"] .member-role.viewer{background:var(--border-strong);color:var(--text-2);}
 
@@ -783,7 +784,7 @@ html[data-theme="dark"] .segmented button.active{background:var(--border-strong)
 .notif-item{
   display:flex;gap:12px;padding:14px 18px;
   border-bottom:1px solid var(--border);
-  transition:background .18s;position:relative;text-align:left;width:100%;
+  transition:background .18s;position:relative;text-align:left;width:100%;cursor:pointer;
 }
 .notif-item:last-child{border-bottom:none;}
 .notif-item:hover{background:var(--surface-soft);}
@@ -1246,6 +1247,7 @@ const I18N = {
     "project.membersEmptySub":"Добавьте пользователя по его ID.",
     "project.roleEditor":"Редактор",
     "project.roleViewer":"Наблюдатель",
+    "project.roleOwner":"\u0412\u043b\u0430\u0434\u0435\u043b\u0435\u0446",
     "project.memberRole":"Роль",
 
     "profile.title":"Профиль",
@@ -1332,6 +1334,7 @@ const I18N = {
     "notif.accessGranted":"Вам предоставили доступ к проекту",
     "notif.fileChanged":"Файл был изменён",
     "notif.newMember":"Новый пользователь получил доступ к вашему проекту",
+    "notif.projectMemberAdded":"{name} \u0434\u043e\u0431\u0430\u0432\u0438\u043b \u0432\u0430\u0441 \u0432 \u043f\u0440\u043e\u0435\u043a\u0442",
     "notif.projectCreated":"Проект успешно создан",
 
     "meta.today":"Сегодня",
@@ -1434,6 +1437,7 @@ const I18N = {
     "project.membersEmptySub":"Add a user by their ID.",
     "project.roleEditor":"Editor",
     "project.roleViewer":"Viewer",
+    "project.roleOwner":"Owner",
     "project.memberRole":"Role",
 
     "profile.title":"Profile",
@@ -1520,6 +1524,7 @@ const I18N = {
     "notif.accessGranted":"You were granted access to a project",
     "notif.fileChanged":"A file was modified",
     "notif.newMember":"A new user got access to your project",
+    "notif.projectMemberAdded":"{name} added you to a project",
     "notif.projectCreated":"Project created successfully",
 
     "meta.today":"Today",
@@ -1642,12 +1647,15 @@ function projectMembersCount(p){
   return Number(p.membersCount || 0) + 1;
 }
 function memberDisplayName(m){
-  return m.name || m.login || ("User " + m.id);
+  const first = m.firstName || "";
+  const last = m.lastName || m.surname || "";
+  return first || last ? [first,last].filter(Boolean).join(" ") : (m.name || m.login || ("User " + m.id));
 }
 function memberInitials(m){
-  return m.initials || String(m.name || m.id).slice(0, 2).toUpperCase();
+  return m.initials || ((m.firstName || "")[0] || "") + ((m.lastName || m.surname || "")[0] || "") || String(m.name || m.id).slice(0, 2).toUpperCase();
 }
 function roleLabel(role){
+  if(role === "owner") return t("project.roleOwner");
   return role === "editor" ? t("project.roleEditor") : t("project.roleViewer");
 }
 
@@ -1876,6 +1884,8 @@ async function logout(){
     state.user = defaultState().user;
     state.files = [];
     state.projects = [];
+    state.notifications = [];
+    renderBell();
     setAppState("auth");
     showAuthView("login");
     showToast(t("toast.loggedOut"));
@@ -2038,7 +2048,7 @@ function bindUploader(root, projectId, onComplete){
       speedEl.textContent = "0.0 " + t("meta.mb") + "/s";
       const msg = projectId ? t("project.uploadComplete") : t("upload.complete");
       doneWrap.innerHTML = '<div class="upload-done">' + ic("check") + '<span>' + escapeHTML(msg) + '</span></div>';
-      addNotification("upload", "notif.fileUploaded");
+      addNotification("upload", "notif.fileUploaded", projectId);
       showToast(projectId ? t("project.uploadComplete") : t("toast.uploaded"), "success");
       if(typeof onComplete === "function") onComplete(newFile);
     } catch(error) {
@@ -2337,7 +2347,7 @@ async function createProject(name){
     if(!response.ok) throw new Error(result.error || "Create project failed");
     const p = result.project; p.members = [];
     state.projects.push(p);
-    addNotification("project", "notif.projectCreated");
+    addNotification("project", "notif.projectCreated", p.id);
     showToast(t("toast.projectCreated"), "success");
     if(currentPage === "projects") refreshCurrentPage(); else navigate("project", p.id);
   } catch(error) { showToast("Could not create project.", "error"); }
@@ -2450,10 +2460,13 @@ function membersBlockHTML(p){
 function memberRowHTML(m){
   const name = memberDisplayName(m);
   const ini  = memberInitials(m);
-  const roleClass = m.role === "editor" ? "editor" : "viewer";
+  const roleClass = m.role === "owner" ? "owner" : m.role === "editor" ? "editor" : "viewer";
+  const avatar = m.avatarUrl
+    ? '<img src="' + escapeHTML(m.avatarUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover">'
+    : escapeHTML(ini);
   return '' +
   '<div class="member-row">' +
-    '<div class="member-avatar">' + escapeHTML(ini) + '</div>' +
+    '<div class="member-avatar">' + avatar + '</div>' +
     '<div class="member-body">' +
       '<div class="member-name">' + escapeHTML(name) + '</div>' +
       '<div class="member-sub">' +
@@ -2605,8 +2618,7 @@ async function addMemberToProject(projectId, userId, role){
     const membersResponse = await apiFetch("/api/projects/" + encodeURIComponent(projectId) + "/members");
     const data = await membersResponse.json();
     const project = state.projects.find(x => x.id === projectId);
-    if(project) { project.members = data.members || []; project.membersCount = project.members.length; }
-    addNotification("member", "notif.newMember");
+    if(project) { project.members = data.members || []; project.membersCount = Math.max(0, project.members.length - 1); }
     return { ok:true };
   } catch(error) { return { ok:false, errorKey:"project.errNotFound" }; }
 }
@@ -2943,19 +2955,29 @@ function bindSettingsPage(){
 const notifPanel = document.getElementById("notifPanel");
 const bellBtn = document.getElementById("bellBtn");
 
-function addNotification(type, textKey){
-  state.notifications.unshift({
-    id: uid("n"),
-    type: type,
-    text: textKey,
-    time: Date.now(),
-    read: false
-  });
-  saveState();
+async function addNotification(type, textKey, projectId){
+  const userId = state.user.id;
+  try {
+    const response = await apiFetch("/api/notifications", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ type, title:t(textKey), message:"", projectId:projectId || null })
+    });
+    if(!response.ok) return;
+    const result = await response.json();
+    if(String(state.user.id) !== String(userId)) return;
+    if(result.notification) state.notifications.unshift(result.notification);
+    renderNotifPanel();
+  } catch(error) { /* Notifications must not interrupt the successful project or upload action. */ }
+}
+async function loadNotifications(){
+  const response = await apiFetch("/api/notifications");
+  if(!response.ok) throw new Error("Could not load notifications");
+  const result = await response.json();
+  state.notifications = Array.isArray(result.notifications) ? result.notifications : [];
   renderNotifPanel();
 }
 function unreadCount(){
-  return state.notifications.filter(n => !n.read).length;
+  return state.notifications.filter(n => !n.isRead).length;
 }
 function renderBell(){
   const dot = document.getElementById("bellDot");
@@ -2975,12 +2997,16 @@ function renderNotifPanel(){
         '</div>' +
         '<div class="notif-list">' + list.map(n => {
           const iconName = n.type === "upload" ? "upload" : n.type === "access" ? "share" : n.type === "edit" ? "edit" : "users";
+          const text = n.type === "project_member_added"
+            ? (n.title ? n.title + " — " : "") + t("notif.projectMemberAdded").replace("{name}", n.actorName || "User")
+            : (n.message || n.title || "");
+          const projectAttr = n.projectId ? ' data-project-id="' + escapeHTML(n.projectId) + '"' : "";
           return '' +
-          '<div class="notif-item ' + (n.read ? "" : "unread") + '">' +
+          '<div class="notif-item ' + (n.isRead ? "" : "unread") + '" data-notification-id="' + escapeHTML(n.id) + '"' + projectAttr + ' role="button" tabindex="0">' +
             '<div class="notif-ic">' + ic(iconName) + '</div>' +
             '<div class="notif-body">' +
-              '<div class="notif-text">' + escapeHTML(t(n.text)) + '</div>' +
-              '<div class="notif-time">' + fmtDate(n.time) + '</div>' +
+              '<div class="notif-text">' + escapeHTML(text) + '</div>' +
+              '<div class="notif-time">' + fmtDate(n.createdAt) + '</div>' +
             '</div>' +
           '</div>';
         }).join("") + '</div>'
@@ -2992,19 +3018,47 @@ function renderNotifPanel(){
   const closeBtn = notifPanel.querySelector("[data-close-notif]");
   if(closeBtn) closeBtn.addEventListener("click", closeNotifPanel);
 
+  notifPanel.querySelectorAll("[data-notification-id]").forEach(item => {
+    const openNotification = async () => {
+      const id = item.dataset.notificationId;
+      const notification = state.notifications.find(n => String(n.id) === id);
+      if(notification && !notification.isRead){
+        try {
+          const response = await apiFetch("/api/notifications/" + encodeURIComponent(id) + "/read", { method:"POST" });
+          if(response.ok) notification.isRead = true;
+        } catch(error) { /* Keep project navigation available when the notification API is unavailable. */ }
+      }
+      const projectId = item.dataset.projectId;
+      if(projectId && state.projects.some(project => String(project.id) === projectId)){
+        closeNotifPanel();
+        navigate("project", projectId);
+      } else renderNotifPanel();
+    };
+    item.addEventListener("click", openNotification);
+    item.addEventListener("keydown", event => {
+      if(event.key === "Enter" || event.key === " "){ event.preventDefault(); openNotification(); }
+    });
+  });
+
   const readAll = notifPanel.querySelector("[data-read-all]");
-  if(readAll) readAll.addEventListener("click", () => {
-    state.notifications.forEach(n => n.read = true);
-    saveState();
+  if(readAll) readAll.addEventListener("click", async () => {
+    let response;
+    try { response = await apiFetch("/api/notifications/read-all", { method:"POST" }); }
+    catch(error) { return; }
+    if(!response.ok) return;
+    state.notifications.forEach(n => n.isRead = true);
     renderNotifPanel();
     renderBell();
     showToast(t("toast.allRead"), "success");
   });
 
   const clearAll = notifPanel.querySelector("[data-clear-all]");
-  if(clearAll) clearAll.addEventListener("click", () => {
+  if(clearAll) clearAll.addEventListener("click", async () => {
+    let response;
+    try { response = await apiFetch("/api/notifications", { method:"DELETE" }); }
+    catch(error) { return; }
+    if(!response.ok) return;
     state.notifications = [];
-    saveState();
     renderNotifPanel();
     renderBell();
     showToast(t("toast.allCleared"), "success");
@@ -3102,6 +3156,8 @@ async function initApp(){
         project.members = membersResponse.ok ? ((await membersResponse.json()).members || []) : [];
         return project;
       }));
+      try { await loadNotifications(); }
+      catch(error) { state.notifications = []; renderBell(); }
       setAppState("app");
       openAppContent();
     }
