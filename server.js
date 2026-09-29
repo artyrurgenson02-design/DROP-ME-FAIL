@@ -22,8 +22,33 @@ const redirectUri = process.env.YANDEX_REDIRECT_URI;
 const cookieName = "odmf.sid";
 const sessionMaxAge = 7 * 24 * 60 * 60 * 1000;
 const storageRoot = path.resolve(process.env.STORAGE_DIR || path.join(__dirname, "var", "uploads"));
-const pool = new Pool({ connectionString: databaseUrl, ssl: process.env.PGSSL === "disable" ? false : undefined });
+
+function connectionStringWithExplicitTls(connectionString) {
+  const url = new URL(connectionString);
+  for (const key of Array.from(url.searchParams.keys())) {
+    if (["sslmode", "sslcert", "sslkey", "sslrootcert"].includes(key.toLowerCase())) {
+      url.searchParams.delete(key);
+    }
+  }
+  return url.toString();
+}
+
+const pool = new Pool({
+  connectionString: databaseUrl ? connectionStringWithExplicitTls(databaseUrl) : databaseUrl,
+  // Render external PostgreSQL requires TLS. Keep Node's normal certificate verification enabled.
+  ssl: { rejectUnauthorized: true }
+});
 const PgSessionStore = connectPgSimple(session);
+
+function safeErrorCode(error) {
+  if (error && typeof error.code === "string" && /^[A-Z0-9_]+$/.test(error.code)) return error.code;
+  if (error && typeof error.name === "string" && /^[A-Za-z][A-Za-z0-9]*$/.test(error.name)) return error.name;
+  return "Error";
+}
+
+pool.on("error", error => {
+  console.error("PostgreSQL pool connection error (" + safeErrorCode(error) + "); details omitted");
+});
 
 if (!clientId || !clientSecret || !sessionSecret || !databaseUrl || !redirectUri) {
   console.error("Required: YANDEX_CLIENT_ID, YANDEX_CLIENT_SECRET, SESSION_SECRET, DATABASE_URL, YANDEX_REDIRECT_URI");
@@ -225,12 +250,14 @@ app.use((err, req, res, _next) => {
     console.error("Yandex OAuth callback failed at stage " + (req.oauthStage || "unknown") + " (" + (err.name || "Error") + "); sensitive values omitted");
     return redirectWithAuthError(res, "oauth_failed");
   }
-  console.error("Request failed:", err.message);
+  console.error("Request failed (" + safeErrorCode(err) + "); details omitted");
   if (!res.headersSent) res.status(500).json({ error: "internal_server_error" });
 });
 
+let startupStage = "storage initialization";
 async function start() {
   await fs.mkdir(storageRoot, { recursive: true });
+  startupStage = "PostgreSQL connection and schema initialization";
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id BIGSERIAL PRIMARY KEY, yandex_id TEXT NOT NULL UNIQUE, login TEXT, email TEXT,
@@ -255,6 +282,10 @@ async function start() {
     CREATE INDEX IF NOT EXISTS files_owner_id_idx ON files(owner_id);
     CREATE INDEX IF NOT EXISTS files_project_id_idx ON files(project_id);
   `);
+  startupStage = "HTTP server startup";
   app.listen(port, "0.0.0.0", () => console.log(`oura drop me fail API listening on port ${port}; frontend=${frontendUrl}; api=${apiBaseUrl || "unset"}`));
 }
-start().catch(error => { console.error("Failed to start server:", error.message); process.exit(1); });
+start().catch(error => {
+  console.error("Failed to start server during " + startupStage + " (" + safeErrorCode(error) + "); sensitive details omitted");
+  process.exit(1);
+});
