@@ -995,7 +995,7 @@ html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
         <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
 
-      <button class="oauth-btn" type="button" data-oauth="google" data-oauth-mode="register">
+      <button class="oauth-btn" type="button" data-oauth="google" data-oauth-mode="register" disabled aria-disabled="true" title="Google OAuth is not configured">
         <span class="oauth-ic">
           <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" fill="#34A853"/><path d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EA4335"/></svg>
         </span>
@@ -1022,7 +1022,7 @@ html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
         <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
 
-      <button class="oauth-btn" type="button" data-oauth="google" data-oauth-mode="login">
+      <button class="oauth-btn" type="button" data-oauth="google" data-oauth-mode="login" disabled aria-disabled="true" title="Google OAuth is not configured">
         <span class="oauth-ic">
           <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" fill="#34A853"/><path d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EA4335"/></svg>
         </span>
@@ -1147,7 +1147,6 @@ const ICONS = {
 };
 function ic(name){ return ICONS[name] || ICONS.file; }
 
-const KNOWN_USERS = Object.create(null);
 
 /* ============================================================
    3. I18N
@@ -1534,9 +1533,6 @@ const I18N = {
 /* ============================================================
    4. STATE + PERSISTENCE
    ============================================================ */
-/* Ключ версии поднят до v2: старые демо-данные из v1 больше не читаются,
-   чтобы при первом запуске новой версии аккаунт был полностью пустым. */
-const STORAGE_KEY = "odmf_state_v2";
 const TOTAL_SPACE = 50 * 1024 * 1024 * 1024; // 50 ГБ — квота
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;      // 5 МБ
 
@@ -1545,9 +1541,7 @@ function uid(prefix){
 }
 
 /**
- * Начальное состояние НОВОГО аккаунта.
- * Никаких демонстрационных данных: ни файлов, ни проектов,
- * ни уведомлений, ни участников.
+ * Transient UI state. User and application records load from the backend.
  */
 function defaultState(){
   return {
@@ -1559,46 +1553,13 @@ function defaultState(){
   };
 }
 
-let state = loadState();
-
-function loadState(){
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    const base = defaultState();
-
-    // Гарантируем корректные типы даже если что-то записано некорректно
-    const projects = (Array.isArray(parsed.projects) ? parsed.projects : []).map(p => ({
-      id: p.id || uid("p"),
-      name: p.name || "Проект",
-      createdAt: p.createdAt || Date.now(),
-      lastModified: p.lastModified || p.createdAt || Date.now(),
-      members: Array.isArray(p.members) ? p.members : []
-    }));
-
-    return {
-      user: Object.assign(base.user, parsed.user || {}),
-      settings: Object.assign(base.settings, parsed.settings || {}),
-      files: Array.isArray(parsed.files) ? parsed.files : [],
-      projects: projects,
-      notifications: Array.isArray(parsed.notifications) ? parsed.notifications : []
-    };
-  } catch(e){
-    return defaultState();
-  }
+let state = defaultState();
+const API_BASE_URL = String(window.API_BASE_URL || "").replace(/\/+$/, "");
+function apiFetch(route, options){
+  if(!API_BASE_URL) throw new Error("API_BASE_URL is not configured");
+  return fetch(API_BASE_URL + route, Object.assign({ credentials:"include", headers:{ Accept:"application/json" } }, options || {}));
 }
-function saveState(){
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      user: state.user,
-      settings: state.settings,
-      files: state.files,
-      projects: state.projects,
-      notifications: state.notifications
-    }));
-  } catch(e){ /* quota — игнорируем в прототипе */ }
-}
+function saveState(){ /* Persistent app data is managed by the API. */ }
 
 /* ============================================================
    5. HELPERS
@@ -1678,17 +1639,13 @@ function wordProjects(n){
 
 /* --- Project members helpers --- */
 function projectMembersCount(p){
-  // +1 — владелец проекта (владелец не отображается в списке, но учитывается в счётчике)
-  return (Array.isArray(p.members) ? p.members.length : 0) + 1;
+  return Number(p.membersCount || 0) + 1;
 }
 function memberDisplayName(m){
-  const u = KNOWN_USERS[m.id];
-  return u ? u.name : ("Пользователь " + m.id);
+  return m.name || m.login || ("User " + m.id);
 }
 function memberInitials(m){
-  const u = KNOWN_USERS[m.id];
-  if(u) return u.initials;
-  return String(m.id).slice(0, 2).toUpperCase();
+  return m.initials || String(m.name || m.id).slice(0, 2).toUpperCase();
 }
 function roleLabel(role){
   return role === "editor" ? t("project.roleEditor") : t("project.roleViewer");
@@ -1866,7 +1823,7 @@ function initAuth(){
       const provider = btn.dataset.oauth;
       const mode = btn.dataset.oauthMode;
       if(provider === "yandex"){
-        window.location.assign("/auth/yandex?mode=" + encodeURIComponent(mode));
+        window.location.assign(API_BASE_URL + "/auth/yandex?mode=" + encodeURIComponent(mode));
         return;
       }
       showToast(state.settings.lang === "en" ? "Google sign-in is not connected yet." : "\u0412\u0445\u043e\u0434 \u0447\u0435\u0440\u0435\u0437 Google \u043f\u043e\u043a\u0430 \u043d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d.");
@@ -1914,8 +1871,11 @@ function openAppContent(){
 }
 async function logout(){
   try {
-    const response = await fetch("/auth/logout", { method:"POST", credentials:"same-origin" });
+    const response = await apiFetch("/auth/logout", { method:"POST" });
     if(!response.ok) throw new Error("Logout request failed");
+    state.user = defaultState().user;
+    state.files = [];
+    state.projects = [];
     setAppState("auth");
     showAuthView("login");
     showToast(t("toast.loggedOut"));
@@ -2053,76 +2013,37 @@ function bindUploader(root, projectId, onComplete){
     });
   }
 
-  function startUpload(file){
+  async function startUpload(file){
     if(uploading){ showToast(t("toast.uploadInProgress")); return; }
     uploading = true;
     renderFileCard(file);
     resetProgressUI();
-
-    const totalBytes = file.size || (5 * 1024 * 1024);
-    const totalMB = Math.max(0.1, bytesToMB(totalBytes));
-    const targetSpeed = Math.max(1.4, totalMB / 5.5);
-    let uploaded = 0;
-
+    const totalMB = Math.max(0.1, bytesToMB(file.size));
     doneEl.textContent = "0 " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
-
-    timer = setInterval(() => {
-      const jitter = 0.75 + Math.random() * 0.6;
-      const stepMB = targetSpeed * 0.11 * jitter;
-      uploaded = Math.min(totalMB, uploaded + stepMB);
-
-      const percent = Math.min(100, Math.floor((uploaded / totalMB) * 100));
-      const remaining = Math.max(0, (totalMB - uploaded) / Math.max(0.1, targetSpeed));
-      const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
-      const ss = String(Math.floor(remaining % 60)).padStart(2, "0");
-
-      pctEl.textContent = percent + "%";
-      fillEl.style.width = percent + "%";
-      doneEl.textContent = uploaded.toFixed(1) + " " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
-      timeEl.textContent = mm + ":" + ss;
-      speedEl.textContent = (targetSpeed * jitter).toFixed(1) + " " + t("meta.mb") + "/s";
-
-      if(uploaded >= totalMB){
-        clearInterval(timer);
-        timer = null;
-        finishUpload(file, totalMB);
-      }
-    }, 110);
-  }
-
-  function finishUpload(file, totalMB){
-    pctEl.textContent = "100%";
-    fillEl.style.width = "100%";
-    fillEl.classList.add("done");
-    doneEl.textContent = totalMB.toFixed(1) + " " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
-    timeEl.textContent = "00:00";
-    speedEl.textContent = "0.0 " + t("meta.mb") + "/s";
-
-    const msg = projectId ? t("project.uploadComplete") : t("upload.complete");
-    doneWrap.innerHTML = '<div class="upload-done">' + ic("check") + '<span>' + escapeHTML(msg) + '</span></div>';
-
-    const newFile = {
-      id: uid("f"),
-      name: file.name,
-      size: file.size || Math.round(totalMB * 1024 * 1024),
-      mime: file.type || "application/octet-stream",
-      uploadedAt: Date.now(),
-      projectId: projectId || null,
-      uploader: state.user.first + " " + state.user.last
-    };
-    state.files.push(newFile);
-
-    if(projectId){
-      const p = state.projects.find(x => x.id === projectId);
-      if(p) p.lastModified = Date.now();
-    }
-
-    addNotification("upload", "notif.fileUploaded");
-    saveState();
-    showToast(projectId ? t("project.uploadComplete") : t("toast.uploaded"), "success");
-
-    uploading = false;
-    if(typeof onComplete === "function") onComplete(newFile);
+    const form = new FormData();
+    form.append("file", file);
+    if(projectId) form.append("projectId", projectId);
+    try {
+      const response = await apiFetch("/api/files", { method:"POST", body:form, headers:{ Accept:"application/json" } });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok) throw new Error(result.error || "Upload failed");
+      const newFile = result.file;
+      newFile.uploadedAt = newFile.createdAt;
+      state.files.unshift(newFile);
+      pctEl.textContent = "100%";
+      fillEl.style.width = "100%";
+      fillEl.classList.add("done");
+      doneEl.textContent = totalMB.toFixed(1) + " " + t("meta.mb") + " / " + totalMB.toFixed(1) + " " + t("meta.mb");
+      timeEl.textContent = "00:00";
+      speedEl.textContent = "0.0 " + t("meta.mb") + "/s";
+      const msg = projectId ? t("project.uploadComplete") : t("upload.complete");
+      doneWrap.innerHTML = '<div class="upload-done">' + ic("check") + '<span>' + escapeHTML(msg) + '</span></div>';
+      addNotification("upload", "notif.fileUploaded");
+      showToast(projectId ? t("project.uploadComplete") : t("toast.uploaded"), "success");
+      if(typeof onComplete === "function") onComplete(newFile);
+    } catch(error) {
+      showToast(error.message === "file_required" ? "Choose a file" : "Upload failed. Check the connection and storage configuration.", "error");
+    } finally { uploading = false; }
   }
 
   function handleFiles(fileList){
@@ -2187,7 +2108,7 @@ function bindUploadPage(){
    14. PAGE: MY FILES
    ============================================================ */
 function renderFilesPage(){
-  const files = state.files.slice().sort((a,b) => b.uploadedAt - a.uploadedAt);
+  const files = state.files.slice().sort((a,b) => new Date(b.createdAt || b.uploadedAt) - new Date(a.createdAt || a.uploadedAt));
   let content;
 
   if(!files.length){
@@ -2242,29 +2163,26 @@ function bindFilesPage(){
 }
 
 function openFileMenu(anchor, fileId){
+  const file = state.files.find(x => x.id === fileId);
+  if(!file || String(file.ownerId) !== String(state.user.id)) return;
   openPopover(anchor, [
     { label: t("common.delete"), icon: ic("trash"), danger: true, onClick: () => confirmDeleteFile(fileId) },
-    { label: t("common.edit"),   icon: ic("edit"),  onClick: () => openEditFile(fileId) },
-    { label: t("common.share"),  icon: ic("share"), onClick: () => openShareFile(fileId) }
+    { label: t("common.edit"),   icon: ic("edit"),  onClick: () => openEditFile(fileId) }
   ]);
 }
 
-function downloadFile(fileId){
-  const f = state.files.find(x => x.id === fileId);
-  if(!f) return;
-  const blob = new Blob(
-    ["oura drop me fail — демонстрационный файл\n\n" + f.name + "\n" + fmtSize(f.size) + "\n"],
-    { type: "text/plain;charset=utf-8" }
-  );
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = f.name.replace(/\.[^.]+$/, "") + "_odmf.txt";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-  showToast(t("toast.downloadStart"));
+async function downloadFile(fileId){
+  try {
+    const response = await apiFetch("/api/files/" + encodeURIComponent(fileId) + "/download");
+    if(!response.ok) throw new Error("Download failed");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (state.files.find(x => x.id === fileId) || {}).name || "download";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch(error) { showToast("Could not download this file.", "error"); }
 }
 
 function confirmDeleteFile(fileId){
@@ -2277,11 +2195,14 @@ function confirmDeleteFile(fileId){
     subtitle: t("modal.deleteFileDesc"),
     actions: [
       { label: t("modal.deleteFileNo"), class: "btn-ghost", onClick: () => {} },
-      { label: t("modal.deleteFileYes"), class: "btn-danger", onClick: () => {
-          state.files = state.files.filter(x => x.id !== fileId);
-          saveState();
-          showToast(t("toast.deleted"), "success");
-          refreshCurrentPage();
+      { label: t("modal.deleteFileYes"), class: "btn-danger", onClick: async () => {
+          try {
+            const response = await apiFetch("/api/files/" + encodeURIComponent(fileId), { method:"DELETE" });
+            if(!response.ok) throw new Error("Delete denied");
+            state.files = state.files.filter(x => x.id !== fileId);
+            showToast(t("toast.deleted"), "success");
+            refreshCurrentPage();
+          } catch(error) { showToast("You cannot delete this file or the request failed.", "error"); }
         } }
     ]
   });
@@ -2300,12 +2221,16 @@ function openEditFile(fileId){
       '</div>',
     actions: [
       { label: t("common.dontSave"), class: "btn-ghost", onClick: () => {} },
-      { label: t("common.save"), class: "btn-primary", onClick: () => {
+      { label: t("common.save"), class: "btn-primary", onClick: async () => {
           const input = document.getElementById("editFileName");
           const val = (input.value || "").trim();
           if(!val){ input.focus(); return false; }
-          f.name = val;
-          saveState();
+          try {
+            const response = await apiFetch("/api/files/" + encodeURIComponent(fileId), { method:"PATCH", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ name:val }) });
+            const result = await response.json();
+            if(!response.ok) throw new Error(result.error || "Rename failed");
+            Object.assign(f, result.file);
+          } catch(error) { showToast("Could not rename this file.", "error"); return false; }
           showToast(t("toast.rename"), "success");
           refreshCurrentPage();
         } }
@@ -2313,51 +2238,11 @@ function openEditFile(fileId){
   });
 }
 
-function openShareFile(fileId){
-  openModal({
-    title: t("modal.shareTitle"),
-    body:
-      '<div class="field">' +
-        '<label for="shareUserId">' + escapeHTML(t("modal.shareLabel")) + '</label>' +
-        '<input class="input" id="shareUserId" type="text" inputmode="numeric" placeholder="' + escapeHTML(t("modal.sharePlaceholder")) + '">' +
-      '</div>' +
-      '<div class="field" style="margin-bottom:6px">' +
-        '<label>' + escapeHTML(t("modal.shareRole")) + '</label>' +
-        '<div class="segmented" data-role-seg style="width:100%">' +
-          '<button type="button" class="active" data-role="editor" style="flex:1">' + escapeHTML(t("modal.roleEditor")) + '</button>' +
-          '<button type="button" data-role="viewer" style="flex:1">' + escapeHTML(t("modal.roleViewer")) + '</button>' +
-        '</div>' +
-        '<p class="muted" style="font-size:12.5px;margin:10px 0 0;line-height:1.5" data-role-desc>' + escapeHTML(t("modal.roleEditorDesc")) + '</p>' +
-      '</div>',
-    actions: [
-      { label: t("common.dontSave"), class: "btn-ghost", onClick: () => {} },
-      { label: t("common.save"), class: "btn-primary", onClick: () => {
-          const idVal = (document.getElementById("shareUserId").value || "").trim();
-          if(!idVal){ document.getElementById("shareUserId").focus(); return false; }
-          addNotification("access", "notif.accessGranted");
-          saveState();
-          showToast(t("toast.accessGranted"), "success");
-        } }
-    ],
-    onMount: (box) => {
-      const seg = box.querySelector("[data-role-seg]");
-      const desc = box.querySelector("[data-role-desc]");
-      seg.querySelectorAll("button").forEach(b => {
-        b.addEventListener("click", () => {
-          seg.querySelectorAll("button").forEach(x => x.classList.remove("active"));
-          b.classList.add("active");
-          desc.textContent = b.dataset.role === "editor" ? t("modal.roleEditorDesc") : t("modal.roleViewerDesc");
-        });
-      });
-    }
-  });
-}
-
 /* ============================================================
    15. PAGE: PROJECTS
    ============================================================ */
 function renderProjectsPage(){
-  const projects = state.projects.slice().sort((a,b) => b.lastModified - a.lastModified);
+  const projects = state.projects.slice().sort((a,b) => new Date(b.lastModified || b.createdAt) - new Date(a.lastModified || a.createdAt));
   let content;
 
   if(!projects.length){
@@ -2384,7 +2269,7 @@ function projectCardHTML(p){
   const membersCount = projectMembersCount(p);
   return '' +
   '<div class="project-card" data-project-id="' + p.id + '" role="button" tabindex="0">' +
-    '<button type="button" class="icon-btn sm pc-more" data-project-more aria-label="' + escapeHTML(t("common.edit")) + '">' + ic("more") + '</button>' +
+    (String(p.ownerId) === String(state.user.id) ? '<button type="button" class="icon-btn sm pc-more" data-project-more aria-label="' + escapeHTML(t("common.edit")) + '">' + ic("more") + '</button>' : '') +
     '<div class="pc-top">' +
       '<div class="pc-folder">' + ic("folder") + '</div>' +
       '<div style="min-width:0;padding-right:36px">' +
@@ -2414,7 +2299,8 @@ function bindProjectsPage(){
     card.addEventListener("keydown", e => {
       if(e.key === "Enter" || e.key === " "){ e.preventDefault(); navigate("project", id); }
     });
-    card.querySelector("[data-project-more]").addEventListener("click", e => {
+    const moreButton = card.querySelector("[data-project-more]");
+    if(moreButton) moreButton.addEventListener("click", e => {
       e.stopPropagation();
       openPopover(e.currentTarget, [
         { label: t("common.delete"), icon: ic("trash"), danger: true, onClick: () => confirmDeleteProject(id) }
@@ -2444,21 +2330,17 @@ function openCreateProject(){
   });
 }
 
-function createProject(name){
-  // Новый проект создаётся полностью пустым: без файлов и без участников
-  const p = {
-    id: uid("p"),
-    name: name,
-    createdAt: Date.now(),
-    lastModified: Date.now(),
-    members: []
-  };
-  state.projects.push(p);
-  addNotification("project", "notif.projectCreated");
-  saveState();
-  showToast(t("toast.projectCreated"), "success");
-  if(currentPage === "projects") refreshCurrentPage();
-  else navigate("project", p.id);
+async function createProject(name){
+  try {
+    const response = await apiFetch("/api/projects", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ name }) });
+    const result = await response.json();
+    if(!response.ok) throw new Error(result.error || "Create project failed");
+    const p = result.project; p.members = [];
+    state.projects.push(p);
+    addNotification("project", "notif.projectCreated");
+    showToast(t("toast.projectCreated"), "success");
+    if(currentPage === "projects") refreshCurrentPage(); else navigate("project", p.id);
+  } catch(error) { showToast("Could not create project.", "error"); }
 }
 
 function confirmDeleteProject(projectId){
@@ -2471,12 +2353,15 @@ function confirmDeleteProject(projectId){
     subtitle: t("modal.deleteProjectDesc"),
     actions: [
       { label: t("modal.deleteProjectNo"), class: "btn-ghost", onClick: () => {} },
-      { label: t("modal.deleteProjectYes"), class: "btn-danger", onClick: () => {
+      { label: t("modal.deleteProjectYes"), class: "btn-danger", onClick: async () => {
+          try {
+          const response = await apiFetch("/api/projects/" + encodeURIComponent(projectId), { method:"DELETE" });
+          if(!response.ok) throw new Error("Delete denied");
           state.projects = state.projects.filter(x => x.id !== projectId);
           state.files.forEach(f => { if(f.projectId === projectId) f.projectId = null; });
-          saveState();
           showToast(t("toast.projectDeleted"), "success");
           navigate("projects");
+          } catch(error) { showToast("Only the project owner can delete it.", "error"); }
         } }
     ]
   });
@@ -2490,7 +2375,7 @@ function renderProjectPage(projectId){
   if(!p){
     return '<div class="page">' + emptyState("folder", t("projects.empty"), t("projects.emptySub"), t("projects.emptyBtn"), "create-project") + '</div>';
   }
-  const files = state.files.filter(f => f.projectId === p.id).sort((a,b) => b.uploadedAt - a.uploadedAt);
+  const files = state.files.filter(f => f.projectId === p.id).sort((a,b) => new Date(b.createdAt || b.uploadedAt) - new Date(a.createdAt || a.uploadedAt));
   const totalSize = files.reduce((s, f) => s + (f.size || 0), 0);
 
   const filesSection = files.length
@@ -2547,7 +2432,7 @@ function membersBlockHTML(p){
         '<div class="empty-ic">' + ic("users") + '</div>' +
         '<div class="empty-title">' + escapeHTML(t("project.membersEmpty")) + '</div>' +
         '<div style="font-size:12.5px;opacity:.75;margin-top:4px;margin-bottom:16px">' + escapeHTML(t("project.membersEmptySub")) + '</div>' +
-        '<button type="button" class="btn btn-primary btn-sm" data-add-member>' + ic("plus") + '<span>' + escapeHTML(t("project.addMember")) + '</span></button>' +
+        (String(p.ownerId) === String(state.user.id) ? '<button type="button" class="btn btn-primary btn-sm" data-add-member>' + ic("plus") + '<span>' + escapeHTML(t("project.addMember")) + '</span></button>' : '') +
       '</div>';
   } else {
     inner = '<div class="members-list">' + members.map(memberRowHTML).join("") + '</div>';
@@ -2556,7 +2441,7 @@ function membersBlockHTML(p){
   '<div class="members-block">' +
     '<div class="members-head">' +
       '<h2 class="members-title">' + escapeHTML(t("project.membersTitle")) + '</h2>' +
-      '<button type="button" class="btn btn-primary btn-sm" data-add-member>' + ic("plus") + '<span>' + escapeHTML(t("project.addMember")) + '</span></button>' +
+      (String(p.ownerId) === String(state.user.id) ? '<button type="button" class="btn btn-primary btn-sm" data-add-member>' + ic("plus") + '<span>' + escapeHTML(t("project.addMember")) + '</span></button>' : '') +
     '</div>' +
     inner +
   '</div>';
@@ -2572,7 +2457,7 @@ function memberRowHTML(m){
     '<div class="member-body">' +
       '<div class="member-name">' + escapeHTML(name) + '</div>' +
       '<div class="member-sub">' +
-        '<span class="member-id">ID: ' + escapeHTML(m.id) + '</span>' +
+        '<span class="member-id">ID: ' + escapeHTML(m.yandexId || m.id) + '</span>' +
         '<span class="member-role ' + roleClass + '">' + escapeHTML(roleLabel(m.role)) + '</span>' +
       '</div>' +
     '</div>' +
@@ -2681,13 +2566,11 @@ function openAddParticipantModal(projectId){
             input.focus();
             return false;
           }
-          const result = addMemberToProject(projectId, idVal, selectedRole);
-          if(!result.ok){
-            showToast(t(result.errorKey), "error");
-            return false;
-          }
-          showToast(t("project.memberAdded"), "success");
-          rerenderProject();
+          addMemberToProject(projectId, idVal, selectedRole).then(result => {
+            if(!result.ok){ showToast(t(result.errorKey), "error"); return; }
+            showToast(t("project.memberAdded"), "success");
+            rerenderProject();
+          });
         } }
     ],
     onMount: (box) => {
@@ -2714,22 +2597,18 @@ function openAddParticipantModal(projectId){
   });
 }
 
-function addMemberToProject(projectId, userId, role){
-  const p = state.projects.find(x => x.id === projectId);
-  if(!p) return { ok:false, errorKey:"project.errNotFound" };
-  if(!Array.isArray(p.members)) p.members = [];
-  if(p.members.some(m => m.id === userId)) return { ok:false, errorKey:"project.errDuplicate" };
-  if(!KNOWN_USERS[userId]) return { ok:false, errorKey:"project.errNotFound" };
-
-  p.members.push({
-    id: userId,
-    role: role === "viewer" ? "viewer" : "editor",
-    addedAt: Date.now()
-  });
-  p.lastModified = Date.now();
-  addNotification("member", "notif.newMember");
-  saveState();
-  return { ok:true };
+async function addMemberToProject(projectId, yandexId, role){
+  try {
+    const response = await apiFetch("/api/projects/" + encodeURIComponent(projectId) + "/members", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ yandexId, role }) });
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok) return { ok:false, errorKey:result.error === "user_not_found" ? "project.errNotFound" : "project.errDuplicate" };
+    const membersResponse = await apiFetch("/api/projects/" + encodeURIComponent(projectId) + "/members");
+    const data = await membersResponse.json();
+    const project = state.projects.find(x => x.id === projectId);
+    if(project) { project.members = data.members || []; project.membersCount = project.members.length; }
+    addNotification("member", "notif.newMember");
+    return { ok:true };
+  } catch(error) { return { ok:false, errorKey:"project.errNotFound" }; }
 }
 
 function rerenderProject(){
@@ -3202,16 +3081,27 @@ async function initApp(){
   setAppState("auth");
   showAuthView("register");
   try {
-    const response = await fetch("/api/me", { credentials:"same-origin", headers:{ Accept:"application/json" } });
+    const response = await apiFetch("/api/me");
     if(!response.ok) throw new Error("Session lookup failed");
     const result = await response.json();
     if(result.user){
       const user = result.user;
       state.user.first = user.firstName || user.name || "";
       state.user.last = user.lastName || "";
-      state.user.id = user.yandexId;
+      state.user.id = user.id;
+      state.user.yandexId = user.yandexId;
       state.user.email = user.email || "";
       state.user.avatarImage = user.avatarUrl || "";
+      const [projectsResponse, filesResponse] = await Promise.all([apiFetch("/api/projects"), apiFetch("/api/files")]);
+      if(!projectsResponse.ok || !filesResponse.ok) throw new Error("Could not load account data");
+      state.projects = (await projectsResponse.json()).projects || [];
+      state.files = (await filesResponse.json()).files || [];
+      state.files.forEach(file => { file.uploadedAt = file.createdAt; });
+      state.projects = await Promise.all(state.projects.map(async project => {
+        const membersResponse = await apiFetch("/api/projects/" + encodeURIComponent(project.id) + "/members");
+        project.members = membersResponse.ok ? ((await membersResponse.json()).members || []) : [];
+        return project;
+      }));
       setAppState("app");
       openAppContent();
     }
@@ -3222,7 +3112,6 @@ async function initApp(){
   const authError = new URLSearchParams(window.location.search).get("auth_error");
   if(authError){
     const messages = {
-      account_not_found: state.settings.lang === "en" ? "No account found. Sign up with Yandex first." : "\u0410\u043a\u043a\u0430\u0443\u043d\u0442 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d. \u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u0443\u0439\u0442\u0435\u0441\u044c \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441.",
       cancelled: state.settings.lang === "en" ? "Yandex sign-in was cancelled." : "\u0412\u0445\u043e\u0434 \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441 \u043e\u0442\u043c\u0435\u043d\u0451\u043d.",
       invalid_state: state.settings.lang === "en" ? "The sign-in request expired. Please try again." : "\u0421\u0440\u043e\u043a \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044f \u0437\u0430\u043f\u0440\u043e\u0441\u0430 \u0432\u0445\u043e\u0434\u0430 \u0438\u0441\u0442\u0451\u043a. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.",
       oauth_failed: state.settings.lang === "en" ? "Yandex sign-in failed. Please try again." : "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0432\u043e\u0439\u0442\u0438 \u0447\u0435\u0440\u0435\u0437 \u042f\u043d\u0434\u0435\u043a\u0441. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."

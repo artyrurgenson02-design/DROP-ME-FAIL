@@ -1,4 +1,7 @@
 node_modules/
+dist/
+var/
+uploads/
 .env
 .env.*
 !.env.example

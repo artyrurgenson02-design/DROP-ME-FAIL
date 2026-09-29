@@ -5,15 +5,18 @@
   "description": "oura drop me fail web app with Yandex ID authentication",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:static": "node scripts/build-static.js"
   },
   "engines": {
     "node": ">=22.13.0"
   },
   "dependencies": {
     "connect-pg-simple": "^10.0.0",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "multer": "^2.4.0",
     "pg": "^8.16.3"
   }
 }
