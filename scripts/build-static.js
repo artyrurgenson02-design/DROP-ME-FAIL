@@ -3,7 +3,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const apiBaseUrl = (process.env.API_BASE_URL || "").replace(/\/$/, "");
+const apiBaseUrl = (process.env.API_BASE_URL || "https://drop-me-fail-backend.onrender.com").replace(/\/$/, "");
 if (!/^https:\/\//i.test(apiBaseUrl)) {
   console.error("Set API_BASE_URL to the HTTPS URL of the Render backend before building the Static Site.");
   process.exit(1);

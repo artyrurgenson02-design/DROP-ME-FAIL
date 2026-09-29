@@ -81,27 +81,45 @@ async function canWriteProject(projectId, userId) {
 
 app.get("/auth/yandex", (req, res) => {
   const state = crypto.randomBytes(32).toString("hex");
+  const mode = req.query.mode === "login" ? "login" : "register";
   req.session.yandexOAuthState = state;
+  req.session.yandexOAuthMode = mode;
   const authorizeUrl = new URL("https://oauth.yandex.ru/authorize");
   authorizeUrl.search = new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirectUri, scope: "login:info login:email", state }).toString();
   res.redirect(authorizeUrl.toString());
 });
 app.get("/auth/yandex/callback", asyncRoute(async (req, res) => {
+  req.oauthStage = "state_validation";
   const expectedState = req.session.yandexOAuthState;
+  const mode = req.session.yandexOAuthMode === "login" ? "login" : "register";
   delete req.session.yandexOAuthState;
+  delete req.session.yandexOAuthMode;
   const receivedState = typeof req.query.state === "string" ? req.query.state : "";
   if (!expectedState || !receivedState || Buffer.byteLength(expectedState) !== Buffer.byteLength(receivedState) || !crypto.timingSafeEqual(Buffer.from(expectedState), Buffer.from(receivedState))) return redirectWithAuthError(res, "invalid_state");
   if (req.query.error) return redirectWithAuthError(res, "cancelled");
   if (typeof req.query.code !== "string" || !req.query.code) return redirectWithAuthError(res, "oauth_failed");
+  req.oauthStage = "token_exchange";
   const tokenResponse = await fetch("https://oauth.yandex.ru/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "authorization_code", code: req.query.code, client_id: clientId, client_secret: clientSecret, redirect_uri: redirectUri }), signal: AbortSignal.timeout(10000) });
   const token = await tokenResponse.json().catch(() => ({}));
   if (!tokenResponse.ok || !token.access_token) throw new Error("Yandex token exchange failed");
+  req.oauthStage = "profile_lookup";
   const profileResponse = await fetch("https://login.yandex.ru/info?format=json", { headers: { Authorization: "OAuth " + token.access_token }, signal: AbortSignal.timeout(10000) });
   if (!profileResponse.ok) throw new Error("Yandex profile request failed");
   const profile = await profileResponse.json();
   if (!profile.id) throw new Error("Yandex profile did not include an account ID");
   const avatarUrl = profile.default_avatar_id ? "https://avatars.yandex.net/get-yapic/" + encodeURIComponent(profile.default_avatar_id) + "/islands-200" : "";
-  const result = await pool.query(`INSERT INTO users (yandex_id, login, email, first_name, last_name, display_name, avatar_url) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (yandex_id) DO UPDATE SET login=EXCLUDED.login,email=EXCLUDED.email,first_name=EXCLUDED.first_name,last_name=EXCLUDED.last_name,display_name=EXCLUDED.display_name,avatar_url=EXCLUDED.avatar_url,updated_at=NOW() RETURNING id`, [String(profile.id), profile.login || null, profile.default_email || null, profile.first_name || "", profile.last_name || "", profile.real_name || profile.display_name || profile.login || "Yandex user", avatarUrl]);
+  const yandexId = String(profile.id);
+  const profileValues = [profile.login || null, profile.default_email || null, profile.first_name || "", profile.last_name || "", profile.real_name || profile.display_name || profile.login || "Yandex user", avatarUrl];
+  let result;
+  req.oauthStage = mode === "login" ? "user_lookup" : "user_create_or_update";
+  if (mode === "login") {
+    result = await pool.query("SELECT id FROM users WHERE yandex_id=$1", [yandexId]);
+    if (!result.rowCount) return redirectWithAuthError(res, "account_not_found");
+    await pool.query("UPDATE users SET login=$1,email=$2,first_name=$3,last_name=$4,display_name=$5,avatar_url=$6,updated_at=NOW() WHERE id=$7", [...profileValues, result.rows[0].id]);
+  } else {
+    result = await pool.query(`INSERT INTO users (yandex_id, login, email, first_name, last_name, display_name, avatar_url) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (yandex_id) DO UPDATE SET login=EXCLUDED.login,email=EXCLUDED.email,first_name=EXCLUDED.first_name,last_name=EXCLUDED.last_name,display_name=EXCLUDED.display_name,avatar_url=EXCLUDED.avatar_url,updated_at=NOW() RETURNING id`, [yandexId, ...profileValues]);
+  }
+  req.oauthStage = "session_creation";
   await new Promise((resolve, reject) => req.session.regenerate(err => err ? reject(err) : resolve()));
   req.session.userId = result.rows[0].id;
   await new Promise((resolve, reject) => req.session.save(err => err ? reject(err) : resolve()));
@@ -203,8 +221,11 @@ app.get("/healthz", (_req, res) => res.json({ ok: true }));
 app.use((err, req, res, _next) => {
   if (err instanceof multer.MulterError) return res.status(err.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({ error: "upload_rejected" });
   if (err.message === "Origin not allowed") return res.status(403).json({ error: "origin_not_allowed" });
+  if (req.path === "/auth/yandex/callback") {
+    console.error("Yandex OAuth callback failed at stage " + (req.oauthStage || "unknown") + " (" + (err.name || "Error") + "); sensitive values omitted");
+    return redirectWithAuthError(res, "oauth_failed");
+  }
   console.error("Request failed:", err.message);
-  if (req.path === "/auth/yandex/callback") return redirectWithAuthError(res, "oauth_failed");
   if (!res.headersSent) res.status(500).json({ error: "internal_server_error" });
 });
 
