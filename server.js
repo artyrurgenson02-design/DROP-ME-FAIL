@@ -186,9 +186,12 @@ app.get("/api/projects/:id/members", requireAuth, asyncRoute(async (req, res) =>
 app.post("/api/projects/:id/members", requireAuth, asyncRoute(async (req, res) => {
   const own = await pool.query("SELECT id FROM projects WHERE id=$1 AND owner_id=$2", [req.params.id, req.session.userId]);
   if (!own.rowCount) return res.status(404).json({ error: "project_not_found" });
-  const yandexId = String(req.body.yandexId || "").trim();
-  if (!yandexId || yandexId.length > 200) return res.status(400).json({ error: "invalid_yandex_id" });
-  const user = await pool.query("SELECT id FROM users WHERE yandex_id=$1", [yandexId]);
+  const userId = req.body && typeof req.body.userId === "string" ? req.body.userId.trim() : "";
+  const canonicalUserId = userId.replace(/^0+/, "");
+  if (!/^\d+$/.test(userId) || !canonicalUserId || canonicalUserId.length > 19 || (canonicalUserId.length === 19 && canonicalUserId > "9223372036854775807")) {
+    return res.status(400).json({ error: "invalid_user_id" });
+  }
+  const user = await pool.query("SELECT id FROM users WHERE id=$1", [userId]);
   if (!user.rowCount) return res.status(404).json({ error: "user_not_found" });
   if (String(user.rows[0].id) === String(req.session.userId)) return res.status(400).json({ error: "owner_already_has_access" });
   const role = req.body.role === "viewer" ? "viewer" : "editor";

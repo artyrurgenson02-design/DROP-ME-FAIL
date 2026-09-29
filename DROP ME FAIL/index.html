@@ -2457,7 +2457,7 @@ function memberRowHTML(m){
     '<div class="member-body">' +
       '<div class="member-name">' + escapeHTML(name) + '</div>' +
       '<div class="member-sub">' +
-        '<span class="member-id">ID: ' + escapeHTML(m.yandexId || m.id) + '</span>' +
+        '<span class="member-id">ID: ' + escapeHTML(m.id) + '</span>' +
         '<span class="member-role ' + roleClass + '">' + escapeHTML(roleLabel(m.role)) + '</span>' +
       '</div>' +
     '</div>' +
@@ -2561,7 +2561,7 @@ function openAddParticipantModal(projectId){
             input.focus();
             return false;
           }
-          if(!/^\d{4,}$/.test(idVal)){
+          if(!/^\d+$/.test(idVal)){
             showToast(t("project.errInvalidId"), "error");
             input.focus();
             return false;
@@ -2597,11 +2597,11 @@ function openAddParticipantModal(projectId){
   });
 }
 
-async function addMemberToProject(projectId, yandexId, role){
+async function addMemberToProject(projectId, userId, role){
   try {
-    const response = await apiFetch("/api/projects/" + encodeURIComponent(projectId) + "/members", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ yandexId, role }) });
+    const response = await apiFetch("/api/projects/" + encodeURIComponent(projectId) + "/members", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ userId, role }) });
     const result = await response.json().catch(() => ({}));
-    if(!response.ok) return { ok:false, errorKey:result.error === "user_not_found" ? "project.errNotFound" : "project.errDuplicate" };
+    if(!response.ok) return { ok:false, errorKey:result.error === "user_not_found" ? "project.errNotFound" : result.error === "invalid_user_id" ? "project.errInvalidId" : "project.errDuplicate" };
     const membersResponse = await apiFetch("/api/projects/" + encodeURIComponent(projectId) + "/members");
     const data = await membersResponse.json();
     const project = state.projects.find(x => x.id === projectId);
