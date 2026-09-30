@@ -8,9 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   CRITICAL GLOBAL RESET
-   ============================================================ */
+
 [hidden] { display: none !important; }
 
 html, body {
@@ -23,9 +21,6 @@ html, body {
 html { overflow: hidden; }
 body { overflow: hidden; }
 
-/* ============================================================
-   TOKENS
-   ============================================================ */
 *,*::before,*::after{box-sizing:border-box;}
 :root{
   --bg:#f6f7f9;
@@ -103,9 +98,6 @@ a{color:var(--accent);text-decoration:none;}
 *::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px;border:3px solid transparent;background-clip:content-box;}
 *::-webkit-scrollbar-thumb:hover{background:var(--text-muted);background-clip:content-box;}
 
-/* ============================================================
-   SHARED UI
-   ============================================================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   height:42px;padding:0 18px;border-radius:12px;
@@ -161,9 +153,6 @@ a{color:var(--accent);text-decoration:none;}
 .input::placeholder{color:var(--text-muted);}
 .input:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 4px var(--accent-soft);}
 
-/* ============================================================
-   AUTH SCREEN
-   ============================================================ */
 #authScreen{
   position: fixed;
   inset: 0;
@@ -245,9 +234,6 @@ body.app-mode #authScreen { display: none !important; }
   margin-top:24px;opacity:.8;
 }
 
-/* ============================================================
-   APP SHELL
-   ============================================================ */
 #appScreen{
   position: fixed;
   inset: 0;
@@ -366,9 +352,6 @@ body.auth-mode #appScreen { display: none !important; }
 .page-head-row{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;}
 .page-head-row .page-head{margin-bottom:0;flex:1;min-width:220px;}
 
-/* ============================================================
-   DROPZONE + UPLOAD
-   ============================================================ */
 .dropzone{
   position:relative;
   border:1.5px dashed var(--border-strong);
@@ -458,9 +441,6 @@ html[data-theme="dark"] .file-ic.vid{background:#211a3a;color:#a68bff;}
 }
 .upload-done svg{width:18px;height:18px;}
 
-/* ============================================================
-   LISTS / ROWS
-   ============================================================ */
 .list{display:flex;flex-direction:column;gap:10px;}
 .row{
   display:flex;align-items:center;gap:14px;
@@ -514,9 +494,6 @@ html[data-theme="dark"] .file-ic.vid{background:#211a3a;color:#a68bff;}
 .stat-value{font-size:22px;font-weight:650;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
 .stat-label{font-size:13px;color:var(--text-muted);margin-top:4px;}
 
-/* ============================================================
-   PROJECT MEMBERS BLOCK
-   ============================================================ */
 .members-block{
   margin-top:26px;
   padding:22px 24px;
@@ -587,7 +564,6 @@ html[data-theme="dark"] .member-role.viewer{background:var(--border-strong);colo
 .members-empty .empty-ic{margin:0 auto 14px;}
 .members-empty .empty-title{color:var(--text);}
 
-/* Role selector in modal */
 .role-options{display:flex;flex-direction:column;gap:10px;margin-top:2px;}
 .role-option{
   display:flex;gap:14px;align-items:flex-start;
@@ -615,9 +591,6 @@ html[data-theme="dark"] .member-role.viewer{background:var(--border-strong);colo
 .role-option-title{font-size:14.5px;font-weight:600;letter-spacing:-.01em;}
 .role-option-desc{font-size:12.5px;color:var(--text-muted);line-height:1.45;}
 
-/* ============================================================
-   PROFILE
-   ============================================================ */
 .profile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:8px;}
 
 .profile-cover{
@@ -816,9 +789,6 @@ html[data-theme="dark"] .segmented button.active{background:var(--border-strong)
 .popover-item.danger{color:var(--danger);}
 .popover-item.danger:hover{background:var(--danger-soft);}
 
-/* ============================================================
-   MODALS
-   ============================================================ */
 .modal-backdrop{
   position:fixed;inset:0;z-index:200;
   display:flex;align-items:center;justify-content:center;
@@ -855,9 +825,6 @@ html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
 }
 .modal-icon-warn svg{width:22px;height:22px;}
 
-/* ============================================================
-   TOASTS
-   ============================================================ */
 #toastRoot{
   position:fixed;right:22px;bottom:22px;z-index:3000;
   display:flex;flex-direction:column;gap:10px;align-items:flex-end;
@@ -902,9 +869,6 @@ html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
 .divider{height:1px;background:var(--border);margin:22px 0;}
 .muted{color:var(--text-muted);}
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 @media (max-width:1080px){ .main{padding:30px 26px 56px;} }
 @media (max-width:900px){
   #appScreen{
@@ -1098,24 +1062,18 @@ html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.62);}
   <main class="main" id="mainArea" tabindex="-1"></main>
 </div>
 
-<!-- ======================= MODAL ======================= -->
 <div class="modal-backdrop" id="modalBackdrop" hidden>
   <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
 </div>
 
-<!-- ======================= HIDDEN FILE INPUTS ======================= -->
 <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" hidden>
 <input type="file" id="coverFileInput"  accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" hidden>
 
-<!-- ======================= TOASTS ======================= -->
 <div id="toastRoot" aria-live="polite" aria-atomic="false"></div>
 
 <script>
 "use strict";
 
-/* ============================================================
-   1. ICONS
-   ============================================================ */
 const SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">';
 const ICONS = {
   upload:   SVG_OPEN + '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
@@ -1148,10 +1106,6 @@ const ICONS = {
 };
 function ic(name){ return ICONS[name] || ICONS.file; }
 
-
-/* ============================================================
-   3. I18N
-   ============================================================ */
 const I18N = {
   ru: {
     "nav.section":"Хранилище",
@@ -1535,9 +1489,6 @@ const I18N = {
   }
 };
 
-/* ============================================================
-   4. STATE + PERSISTENCE
-   ============================================================ */
 const TOTAL_SPACE = 50 * 1024 * 1024 * 1024; // 50 ГБ — квота
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;      // 5 МБ
 
@@ -1545,9 +1496,6 @@ function uid(prefix){
   return (prefix || "id") + "_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 }
 
-/**
- * Transient UI state. User and application records load from the backend.
- */
 function defaultState(){
   return {
     user: { first:"", last:"", id:"", avatarImage:"", coverImage:"" },
@@ -1564,11 +1512,9 @@ function apiFetch(route, options){
   if(!API_BASE_URL) throw new Error("API_BASE_URL is not configured");
   return fetch(API_BASE_URL + route, Object.assign({ credentials:"include", headers:{ Accept:"application/json" } }, options || {}));
 }
-function saveState(){ /* Persistent app data is managed by the API. */ }
+function saveState(){ }
 
-/* ============================================================
-   5. HELPERS
-   ============================================================ */
+
 function t(key){
   const lang = state.settings.lang || "ru";
   return (I18N[lang] && I18N[lang][key]) || (I18N.ru[key]) || key;
@@ -1659,9 +1605,6 @@ function roleLabel(role){
   return role === "editor" ? t("project.roleEditor") : t("project.roleViewer");
 }
 
-/* ============================================================
-   6. TOASTS
-   ============================================================ */
 function showToast(message, type){
   const root = document.getElementById("toastRoot");
   const el = document.createElement("div");
@@ -1675,9 +1618,6 @@ function showToast(message, type){
   }, 3200);
 }
 
-/* ============================================================
-   7. MODALS
-   ============================================================ */
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalBox = document.getElementById("modalBox");
 
@@ -1741,9 +1681,6 @@ document.addEventListener("keydown", e => {
   }
 });
 
-/* ============================================================
-   8. POPOVER MENU
-   ============================================================ */
 let popoverEl = null;
 function closePopover(){
   if(popoverEl){ popoverEl.remove(); popoverEl = null; }
@@ -1794,9 +1731,6 @@ function outsidePopover(e){
   }
 }
 
-/* ============================================================
-   9. THEME
-   ============================================================ */
 function applyTheme(){
   const pref = state.settings.theme || "light";
   let actual = pref;
@@ -1809,9 +1743,6 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () 
   if(state.settings.theme === "system") applyTheme();
 });
 
-/* ============================================================
-   10. AUTH SCREEN
-   ============================================================ */
 function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(el => {
     el.textContent = t(el.dataset.i18n);
@@ -1839,9 +1770,6 @@ function initAuth(){
   });
 }
 
-/* ============================================================
-   11. APP SHELL / STATE SWITCH
-   ============================================================ */
 const appScreen = document.getElementById("appScreen");
 const authScreen = document.getElementById("authScreen");
 const mainArea = document.getElementById("mainArea");
@@ -1874,7 +1802,7 @@ function openAppContent(){
   applyTheme();
   applyI18n();
   renderUserChrome();
-  navigate("files"); // Новая точка входа: показываем пустые «Мои загрузки»
+  navigate("files"); 
   renderNotifPanel();
 }
 async function logout(){
@@ -1950,9 +1878,6 @@ function navigate(page, param){
   }
 }
 
-/* ============================================================
-   12. UPLOAD COMPONENT
-   ============================================================ */
 function uploadBlockHTML(){
   return '' +
   '<div class="dropzone" data-dropzone tabindex="0" role="button" aria-label="' + escapeHTML(t("upload.choose")) + '">' +
@@ -2096,9 +2021,6 @@ function bindUploader(root, projectId, onComplete){
   document.addEventListener("drop", e => e.preventDefault());
 }
 
-/* ============================================================
-   13. PAGE: UPLOAD
-   ============================================================ */
 function renderUploadPage(){
   return '' +
   '<div class="page">' +
@@ -2114,9 +2036,6 @@ function bindUploadPage(){
   bindUploader(root, null, () => {});
 }
 
-/* ============================================================
-   14. PAGE: MY FILES
-   ============================================================ */
 function renderFilesPage(){
   const files = state.files.slice().sort((a,b) => new Date(b.createdAt || b.uploadedAt) - new Date(a.createdAt || a.uploadedAt));
   let content;
@@ -2248,9 +2167,6 @@ function openEditFile(fileId){
   });
 }
 
-/* ============================================================
-   15. PAGE: PROJECTS
-   ============================================================ */
 function renderProjectsPage(){
   const projects = state.projects.slice().sort((a,b) => new Date(b.lastModified || b.createdAt) - new Date(a.lastModified || a.createdAt));
   let content;
@@ -2377,9 +2293,6 @@ function confirmDeleteProject(projectId){
   });
 }
 
-/* ============================================================
-   16. PAGE: PROJECT DETAIL
-   ============================================================ */
 function renderProjectPage(projectId){
   const p = state.projects.find(x => x.id === projectId);
   if(!p){
@@ -2527,14 +2440,11 @@ function bindProjectPage(projectId){
       }
     });
   }
-
-  // Кнопки «Добавить участника» (в шапке блока и в пустом состоянии)
   document.querySelectorAll("#mainArea [data-add-member]").forEach(btn => {
     btn.addEventListener("click", () => openAddParticipantModal(projectId));
   });
 }
 
-/* --- Модальное окно «Добавить участника» --- */
 function openAddParticipantModal(projectId){
   let selectedRole = "editor";
 
@@ -2631,9 +2541,6 @@ function rerenderProject(){
   mainArea.scrollTop = scrollTop;
 }
 
-/* ============================================================
-   17. PAGE: PROFILE
-   ============================================================ */
 function renderProfilePage(){
   const filesCount = state.files.length;
   const projectsCount = state.projects.length;
@@ -2853,9 +2760,6 @@ function initProfileImageInputs(){
   });
 }
 
-/* ============================================================
-   18. PAGE: SETTINGS
-   ============================================================ */
 function renderSettingsPage(){
   const s = state.settings;
   return '' +
@@ -2949,9 +2853,6 @@ function bindSettingsPage(){
   });
 }
 
-/* ============================================================
-   19. NOTIFICATIONS
-   ============================================================ */
 const notifPanel = document.getElementById("notifPanel");
 const bellBtn = document.getElementById("bellBtn");
 
@@ -2967,7 +2868,7 @@ async function addNotification(type, textKey, projectId){
     if(String(state.user.id) !== String(userId)) return;
     if(result.notification) state.notifications.unshift(result.notification);
     renderNotifPanel();
-  } catch(error) { /* Notifications must not interrupt the successful project or upload action. */ }
+  } catch(error) {}
 }
 async function loadNotifications(){
   const response = await apiFetch("/api/notifications");
@@ -3092,9 +2993,6 @@ function initNotifications(){
   });
 }
 
-/* ============================================================
-   20. EMPTY STATE HELPER
-   ============================================================ */
 function emptyState(iconName, title, sub, btnLabel, action){
   // Иконка для кнопки: upload/scroll-upload → upload; иначе plus
   const btnIcon = (action === "upload" || action === "scroll-upload") ? "upload" : "plus";
@@ -3107,17 +3005,11 @@ function emptyState(iconName, title, sub, btnLabel, action){
   '</div>';
 }
 
-/* ============================================================
-   21. REFRESH
-   ============================================================ */
 function refreshCurrentPage(){
   if(currentPage === "project") navigate("project", currentProjectId);
   else navigate(currentPage);
 }
 
-/* ============================================================
-   22. INIT
-   ============================================================ */
 async function initApp(){
   applyTheme();
   applyI18n();
